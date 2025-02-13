@@ -1,4 +1,6 @@
 const express = require("express");
+const cors = require("cors");
+//const bodyParser = require("body-parser");
 const { connectDB, sequelize_users } = require("./config/db");
 
 require("dotenv").config();
@@ -21,6 +23,8 @@ connectDB().then(sync_database);
 // Middleware para leer JSON
 app.use(express.json());
 
+app.use(cors());
+
 // Ruta de prueba
 app.get("/", (req, res) => {
   res.send("¡Servidor funcionando! 🚀");
@@ -28,6 +32,9 @@ app.get("/", (req, res) => {
 
 const authRoutes = require("./routes/authRoutes");
 app.use("/auth", authRoutes);
+
+const paymentRoutes = require("./routes/paymentRoutes");
+app.use("/payment", paymentRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {

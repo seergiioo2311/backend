@@ -35,6 +35,31 @@ const User = sequelize_users.define(
       type: DataTypes.DATE, // Fecha de expiración del token
       allowNull: true,
     },
+    stripeCustomerId: {
+      type: DataTypes.STRING,
+      allowNull: true // Se asigna al registrar la tarjeta
+  },
+  paymentMethodId: {
+      type: DataTypes.STRING,
+      allowNull: true, // Se asigna cuando el usuario guarda una tarjeta
+      unique: true
+  },
+  cardBrand: {
+      type: DataTypes.STRING, // Visa, Mastercard, etc.
+      allowNull: true
+  },
+  last4: {
+      type: DataTypes.STRING(4), // Últimos 4 dígitos de la tarjeta
+      allowNull: true
+  },
+  expMonth: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+  },
+  expYear: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+  },
   },
   {
     timestamps: true,
