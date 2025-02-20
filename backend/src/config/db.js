@@ -14,7 +14,7 @@ const sequelize_users = new Sequelize(
 );
 
 // Función para conectar a la base de datos
-const connectDB = async () => {
+const connectDBUsers = async () => {
   try {
     await sequelize_users.authenticate();
     console.log("[ + ] Conectado a PostgreSQL");
@@ -24,4 +24,4 @@ const connectDB = async () => {
   }
 };
 
-module.exports = { sequelize_users, connectDB };
+module.exports = { sequelize_users, connectDBUsers };

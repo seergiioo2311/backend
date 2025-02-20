@@ -34,27 +34,43 @@ const processPayment = async (req, res) => {
     }
 };
 
+/**
+ * 
+ * @param {Object} req - Objeto de solicitud de Express.
+ * @param {Object} res - Objeto de respuesta de Express. 
+ */
 const add_card = async (req, res) => {
     try {
-        const {user ,card_number, exp_month, exp_year, cvc} = req.body;
+        const { user, paymentMethodId } = req.body;
 
-        //Creamos el metodo de pago
-        const pay_method = await stripe.paymentMethods.create({
-            type: 'card',
-            card: {
-                number: card_number,
-                exp_month: exp_month,
-                exp_year: exp_year,
-                cvc: cvc
+        if (!user || !paymentMethodId) {
+            return res.status(400).json({ error: 'Usuario y método de pago son obligatorios.' });
+        }
+
+        // Vincular el método de pago al cliente en Stripe
+        await stripe.paymentMethods.attach(paymentMethodId, { customer: user });
+
+        // Establecer el método de pago como predeterminado para este cliente
+        await stripe.customers.update(user, {
+            invoice_settings: {
+                default_payment_method: paymentMethodId
             }
         });
-        await stripe.paymentMethods.attach(pay_method.id, {customer: user});
-        sequelize_users.update({payment_method: pay_method.id}, {where: {id: user}});
+
+        // Actualizar en la base de datos
+        await sequelize_users.update({ payment_method: paymentMethodId }, { where: { id: user } });
+
+        res.status(200).json({ message: 'Método de pago añadido exitosamente.' });
     } 
-    catch(error) {
+    catch (error) {
         console.error('Error al registrar la tarjeta:', error);
-        res.status(500).json({ error: error.message });
+        if (error.type === 'StripeCardError') {
+            res.status(400).json({ error: 'Tarjeta rechazada. Verifica los datos.' });
+        } else {
+            res.status(500).json({ error: 'Error en el servidor. Inténtalo más tarde.' });
+        }
     }
 };
 
-module.exports = { processPayment };
+
+module.exports = { processPayment, add_card };

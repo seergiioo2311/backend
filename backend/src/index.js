@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 //const bodyParser = require("body-parser");
-const { connectDB, sequelize_users } = require("./config/db");
+const { connectDBUsers, sequelize_users } = require("./config/db");
 
 require("dotenv").config();
 
@@ -18,11 +18,12 @@ const sync_database = async () => {
   }
 };
 
-connectDB().then(sync_database);
+connectDBUsers().then(sync_database);
 
 // Middleware para leer JSON
 app.use(express.json());
 
+// Middleware para permitir CORS
 app.use(cors());
 
 // Ruta de prueba

@@ -2,21 +2,26 @@ const { DataTypes } = require("sequelize");
 const { sequelize_users, connectDB } = require("../config/db.js");
 const bcrypt = require("bcrypt");
 
+/**
+ * Modelo de usuario.
+ */
 const User = sequelize_users.define(
   "User",
   {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID, // Identificador único
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      autoIncrement: true,
+      unique: true,
+      allowNull: false,
     },
     username: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING, // Nombre de usuario
       allowNull: false,
       unique: true,
     },
     email: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING, // Correo electrónico
       allowNull: false,
       unique: true,
       validate: {
@@ -24,7 +29,7 @@ const User = sequelize_users.define(
       },
     },
     password: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING, //Contraseña encriptada
       allowNull: false,
     },
     resetToken: {
@@ -43,22 +48,6 @@ const User = sequelize_users.define(
       type: DataTypes.STRING,
       allowNull: true, // Se asigna cuando el usuario guarda una tarjeta
       unique: true
-  },
-  cardBrand: {
-      type: DataTypes.STRING, // Visa, Mastercard, etc.
-      allowNull: true
-  },
-  last4: {
-      type: DataTypes.STRING(4), // Últimos 4 dígitos de la tarjeta
-      allowNull: true
-  },
-  expMonth: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-  },
-  expYear: {
-      type: DataTypes.INTEGER,
-      allowNull: true
   },
   },
   {
