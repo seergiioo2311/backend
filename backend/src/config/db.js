@@ -2,7 +2,7 @@ const { Sequelize } = require("sequelize");
 require("dotenv").config(); // Cargar variables de entorno
 
 // Crear instancia de Sequelize con los datos de conexión
-const sequelize_users = new Sequelize(
+const sequelize_user = new Sequelize(
   process.env.DB_NAME_USERS, // Nombre de la base de datos
   process.env.DB_USER, // Usuario de la base de datos
   process.env.DB_PASSWORD, // Contraseña
@@ -16,7 +16,7 @@ const sequelize_users = new Sequelize(
 // Función para conectar a la base de datos
 const connectDBUsers = async () => {
   try {
-    await sequelize_users.authenticate();
+    await sequelize_user.authenticate();
     console.log("[ + ] Conectado a PostgreSQL");
   } catch (error) {
     console.error(" [ - ] Error conectando a PostgreSQL:", error);

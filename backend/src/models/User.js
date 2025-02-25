@@ -1,11 +1,11 @@
 const { DataTypes } = require("sequelize");
-const { sequelize_users, connectDB } = require("../config/db.js");
+const { sequelize_user, connectDBUsers } = require("../config/db.js");
 const bcrypt = require("bcrypt");
 
 /**
- * Modelo de usuario.
+ * Modelo de usuario para el login.
  */
-const User = sequelize_users.define(
+const User = sequelize_user.define(
   "User",
   {
     id: {

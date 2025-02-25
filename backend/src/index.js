@@ -8,6 +8,9 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+/**
+ * Sincroniza la base de datos.
+ */
 const sync_database = async () => {
   try {
     await sequelize_users.sync({ alter: true });
