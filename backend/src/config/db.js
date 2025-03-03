@@ -36,5 +36,4 @@ const connectDB = async () => {
   }
 };
 
-module.exports = { sequelize_loggin, connectDB };
-module.exports = { sequelize_game, connectDB };
+module.exports = { sequelize_game, connectDB, sequelize_loggin };
