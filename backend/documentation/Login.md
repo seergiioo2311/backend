@@ -110,7 +110,7 @@ Esta API permite la autenticación de usuarios, recuperación de contraseña y p
 {
     "message":"Contraseña actualizada con éxito"
 }
-
+~~~
 ---
 
 ## 💳 6. Pagar con Método de Pago
