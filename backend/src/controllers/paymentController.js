@@ -1,5 +1,5 @@
 const stripe = require('../config/stripe');
-const { sequelize_users } = require('../config/db');
+const { sequelize_loggin } = require('../config/db');
 
 /**
  * Procesa un pago con Stripe.
@@ -9,6 +9,7 @@ const { sequelize_users } = require('../config/db');
  */
 const processPayment = async (req, res) => {
     try {
+        console.log(stripe.paymentIntents); // Debe imprimir un objeto, NO "undefined"
         const { amount, currency, paymentMethodId } = req.body;
 
         if (!amount || !currency || !paymentMethodId) {
@@ -58,7 +59,7 @@ const add_card = async (req, res) => {
         });
 
         // Actualizar en la base de datos
-        await sequelize_users.update({ payment_method: paymentMethodId }, { where: { id: user } });
+        await sequelize_loggin.update({ payment_method: paymentMethodId }, { where: { id: user } });
 
         res.status(200).json({ message: 'Método de pago añadido exitosamente.' });
     } 

@@ -1,3 +1,5 @@
+# Documentación de la BBDD versión 1.0
+
 ## Users
 
 **Descripción de la entidad**: La entidad `Users` almacena la información de los jugadores registrados en el sistema. Cada usuario puede participar en torneos, partidas y mantener relaciones de amistad con otros jugadores.

@@ -1,7 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 //const bodyParser = require("body-parser");
-const { connectDBUsers, sequelize_users } = require("./config/db");
+
+const { connectDB, sequelize_loggin } = require("./config/db");
 
 require("dotenv").config();
 
@@ -13,7 +14,7 @@ const PORT = process.env.PORT || 3000;
  */
 const sync_database = async () => {
   try {
-    await sequelize_users.sync({ alter: true });
+    await sequelize_loggin.sync({ alter: true });
     console.log("[ + ] Base de datos sincronizada correctamente");
   } catch (error) {
     console.error("[ - ] Error sincronizando la base de datos:", error);
@@ -21,7 +22,7 @@ const sync_database = async () => {
   }
 };
 
-connectDBUsers().then(sync_database);
+connectDB().then(sync_database);
 
 // Middleware para leer JSON
 app.use(express.json());
