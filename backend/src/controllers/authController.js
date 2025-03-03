@@ -1,4 +1,4 @@
-const User = require('../models/User.js'); //Importamos el modelo user
+const Loggin = require('../models/Loggin.js'); //Importamos el modelo user
 const bcrypt = require('bcrypt'); //Importamos bcryptjs para encriptar las contraseña aumentando la seguridad
 const jwt = require('jsonwebtoken'); //Importamos jsonwebtoken para generar el token y poder usar OAuth
 const crypto = require('crypto'); //Importamos crypto para generar el token de recuperacion de contraseña
@@ -88,13 +88,13 @@ const sign_up = async (req, res) => {
     try {
         const {username, email, password} = req.body; //Extraemos los datos del body de la petición recibida
         //Primero deberemos verificar si el usuario ya existe en la base de datos
-        const user_exists = await User.findOne({where: {email}}); //Buscamos si el usuario ya existe en la base de datos 
+        const user_exists = await Loggin.findOne({where: {email}}); //Buscamos si el usuario ya existe en la base de datos 
         if (user_exists) {
             return res.status(400).json({message: `El usuario con email ${email} ya existe`}); //Si el usuario ya existe, retornamos un mensaje de error 
         }
         else{
-            const user = await User.create({username, email, password}); //Si el usuario no existe, lo creamos en la base de datos
-            return res.status(201).json({message: 'Usuario creado con éxito', user}); //Retornamos un mensaje de éxito
+            const user = await Loggin.create({username, email, password}); //Si el usuario no existe, lo creamos en la base de datos
+            return res.status(201).json({message: 'Usuario creado con éxito', user:{username: user.username, email: user.email}}); //Retornamos un mensaje de éxito;
         }
     }
     catch (error) {
@@ -112,27 +112,43 @@ const sign_up = async (req, res) => {
  */
 const sign_in = async (req, res) => {
     try {
-        const {email, password} = req.body; //Extraemos los datos del body de la petición recibida
-        const user = await User.findOne({where: {email}}); //Buscamos el usuario en la base de datos
+        const { email, password } = req.body;
+        const user = await Loggin.findOne({ where: { email } });
 
-        if(!user) {
-            return res.status(400).json({message: 'Usuario o contraseña incorrectos'}); //Si el usuario no existe, retornamos un mensaje de error
+        if (!user) {
+            return res.status(400).json({ message: 'Usuario o contraseña incorrectos' });
         }
 
-        const is_match = await bcrypt.compare(password, user.password); //Comparamos la contraseña ingresada con la contraseña almacenada en la base de datos
-        
-        if(!is_match) {
-            return res.status(401).json({message: 'Usuario o contraseña incorrectos'}); //Si la contraseña no coincide, retornamos un mensaje de error
+        const is_match = await bcrypt.compare(password, user.password);
+        if (!is_match) {
+            return res.status(401).json({ message: 'Usuario o contraseña incorrectos' });
         }
 
-        const token = jwt.sign ({id: user.id, email: user.email}, process.env.JWT_SECRET, {expiresIn: '2h'}); //Generamos el token con el id y email del usuario y ponemos que tiempo de expiración 2 horas (una larga sesion de juego)
+        // Generar Access Token (válido por 2 horas)
+        const accessToken = jwt.sign(
+            { id: user.id, email: user.email },
+            process.env.JWT_SECRET,
+            { expiresIn: '2h' }
+        );
+          
+        console.log("AccessToken generado con éxito");
+        // Generar Refresh Token (válido por 7 días)
+        const refreshToken = jwt.sign(
+            { id: user.id, email: user.email },
+            process.env.JWT_REFRESH_SECRET, // Necesitas definir otra clave secreta para Refresh Tokens
+            { expiresIn: '7d' }
+        );
+        console.log("RefreshToken generado con éxito");
 
-        res.json({message: 'Inicio de Sesión Correcto', token}); //Retornamos un mensaje de éxito y el token generado
+        // Guardar el Refresh Token en la base de datos o en memoria (opcional)
+        user.refreshToken = refreshToken;
+        await user.save();
+
+        res.json({ message: 'Inicio de Sesión Correcto', accessToken, refreshToken });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error al iniciar sesión', error });
     }
-    catch (error) {
-        return res.status(500).json({message: 'Error al iniciar sesión', error});
-    }
-}
+};
 
 /**
  * 
@@ -145,7 +161,7 @@ const sign_in = async (req, res) => {
 const forgot_password = async (req, res) => {
     try {
         const {email} = req.body; //De la peticion recibida extraemos el correo electronico del usuario el cual quiere comenzar el proceso de recuperacion de contraseña
-        const user = await User.findOne({where: {email}}); // Buscamos el usuario en la base de datos
+        const user = await Loggin.findOne({where: {email}}); // Buscamos el usuario en la base de datos
 
         if(!user) {
             return res.status(404).json({message: 'El usuario solicitado no existe'}); //Si el usuario no existe, retornamos un mensaje de error
@@ -186,7 +202,7 @@ const reset_password = async (req, res) => {
         const {newPassword} = req.body; //Extraemos la nueva contraseña del body de la petición
         
 
-        const user = await User.findOne({
+        const user = await Loggin.findOne({
             where: {
             resetToken: token, 
             resetTokenExpires: { [Op.gt]: Date.now()}
@@ -211,4 +227,45 @@ const reset_password = async (req, res) => {
     }
 }
 
-module.exports = {sign_in, sign_up, forgot_password, reset_password}; //Exportamos las funciones login y register para poder usarlas en otros archivos del proyecto
+/**
+ * @description Función para refrescar el token de acceso
+ * @param {Object} req - Objeto de solicitud de express que contiene el refresh token en `req.body`
+ * @param {Object} res - Objeto de respuesta de express que contiene el nuevo access token
+ * @returns {Promise<void>} - Devuelve un nuevo access token
+ * @throws {Error} - Lanza un error si hay un problema al refrescar el token
+ */
+const refresh_token = async (req, res) => {
+  try {
+    const { refreshToken } = req.body; // Recibimos el refresh_token
+
+    if (!refreshToken) {
+      return res.status(401).json({ message: "No hay refresh token, autorización denegada" });
+    }
+
+    // Verificar el Refresh Token
+    jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, async (err, decoded) => {
+      if (err) return res.status(403).json({ message: "Refresh token inválido" });
+
+      // Buscar al usuario en la base de datos
+      const user = await Loggin.findOne({ where: { id: decoded.id } });
+
+      if (!user || user.refreshToken !== refreshToken) {
+        return res.status(403).json({ message: "Refresh token no válido o caducado" });
+      }
+
+      // Generar un nuevo Access Token
+      const newToken = jwt.sign(
+        { id: user.id, email: user.email },
+        process.env.JWT_SECRET,
+        { expiresIn: '2h' }
+      );
+
+      res.json({ accessToken: newToken });
+    });
+
+  } catch (error) {
+    return res.status(500).json({ message: "Error al refrescar el token", error });
+  }
+};
+
+module.exports = {sign_in, sign_up, forgot_password, reset_password, refresh_token}; //Exportamos las funciones login y register para poder usarlas en otros archivos del proyecto
