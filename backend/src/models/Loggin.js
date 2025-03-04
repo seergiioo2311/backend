@@ -27,6 +27,10 @@ const Loggin = sequelize_loggin.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    refreshToken: {
+      type: DataTypes.STRING, // Token para refrescar el token de acceso
+      allowNull: true,
+    },
     resetToken: {
       type: DataTypes.STRING, // Token temporal para recuperar contraseña
       allowNull: true,

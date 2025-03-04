@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-//const bodyParser = require("body-parser");
 
 const { connectDB, sequelize_loggin } = require("./config/db");
 
@@ -40,6 +39,9 @@ app.use("/auth", authRoutes);
 
 const paymentRoutes = require("./routes/paymentRoutes");
 app.use("/payment", paymentRoutes);
+
+const mainScreenRoutes = require("./routes/mainScreenRoutes");
+app.use("/main-screen", mainScreenRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {
