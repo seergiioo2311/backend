@@ -25,6 +25,7 @@ Esta API permite la autenticación de usuarios, recuperación de contraseña y p
 ~~~json
 {"message":"Inicio de Sesión Correcto","accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJpdmFuZGV6YWRAZ21haWwuY29tIiwiaWF0IjoxNzQxMDIyNDA1LCJleHAiOjE3NDEwMjk2MDV9.FAqyoSUN8R9IwzlrPzN35iHQP91H8keAxMvau48nlGA","refreshToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJpdmFuZGV6YWRAZ21haWwuY29tIiwiaWF0IjoxNzQxMDIyNDA1LCJleHAiOjE3NDE2MjcyMDV9.3W9rw8J6GN50RSZ7E2vukqUb7tQQGNjTxVyGDE1iZJo"}
 ~~~
+💡 Nota: tanto el accesToken como el refreshToken deben de ir en cada peticion que se haga al backend, es la manera de autenticar autenticar al usuario.
 
 ---
 
@@ -46,7 +47,7 @@ Esta API permite la autenticación de usuarios, recuperación de contraseña y p
 }
 ~~~
 
-### 📌Respuesta de la Peticion
+### 📌 Respuesta de la Peticion
 ~~~json
 {
     "message": "Usuario creado con éxito",
@@ -72,7 +73,7 @@ Esta API permite la autenticación de usuarios, recuperación de contraseña y p
 }
 ~~~
 
-### Respuesta de la Peticion
+### 📌 Respuesta de la Peticion
 ~~~json
 {"message":"Correo de recuperación enviado con éxito"}
 ~~~
@@ -80,7 +81,7 @@ Esta API permite la autenticación de usuarios, recuperación de contraseña y p
 ---
 
 ## 📩 4. Recuperar Contraseña - Obtener Formulario
-**Método:** `POST`  
+**Método:** `GET`  
 **URL:**
 `http://localhost:3000/auth/reset-password/7ddaa257c2edf93ed30fc49864c41057a7986b0bc655f3c0a812b469b9f8bf03`
 
@@ -105,12 +106,12 @@ Esta API permite la autenticación de usuarios, recuperación de contraseña y p
 }
 ~~~
 
-### Respuesta de la Peticion
+### 📌 Respuesta de la Peticion
 ~~~json
 {
     "message":"Contraseña actualizada con éxito"
 }
-
+~~~
 ---
 
 ## 💳 6. Pagar con Método de Pago
@@ -131,7 +132,7 @@ Esta API permite la autenticación de usuarios, recuperación de contraseña y p
 }
 ~~~
 
-### Respuesta de la Peticion
+### 📌 Respuesta de la Peticion
 ~~~json
 {"success":true,"paymentIntent":{"id":"pi_3QycaEE4oCRS9kfz01hnIVPm","object":"payment_intent","amount":90000000,"amount_capturable":0,"amount_details":{"tip":{}},"amount_received":90000000,"application":null,"application_fee_amount":null,"automatic_payment_methods":{"allow_redirects":"never","enabled":true},"canceled_at":null,"cancellation_reason":null,"capture_method":"automatic_async","client_secret":"pi_3QycaEE4oCRS9kfz01hnIVPm_secret_mRRKQlE25i2RLj5RRYOfxwFmh","confirmation_method":"automatic","created":1741022114,"currency":"usd","customer":null,"description":null,"invoice":null,"last_payment_error":null,"latest_charge":"ch_3QycaEE4oCRS9kfz0KunnGFm","livemode":false,"metadata":{},"next_action":null,"on_behalf_of":null,"payment_method":"pm_1QycaEE4oCRS9kfzZukBKjPC","payment_method_configuration_details":{"id":"pmc_1QrelFE4oCRS9kfzbrndra5K","parent":null},"payment_method_options":{"card":{"installments":null,"mandate_options":null,"network":null,"request_three_d_secure":"automatic"},"link":{"persistent_token":null}},"payment_method_types":["card","link"],"processing":null,"receipt_email":null,"review":null,"setup_future_usage":null,"shipping":null,"source":null,"statement_descriptor":null,"statement_descriptor_suffix":null,"status":"succeeded","transfer_data":null,"transfer_group":null}
 ~~~
