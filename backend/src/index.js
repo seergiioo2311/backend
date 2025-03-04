@@ -40,6 +40,9 @@ app.use("/auth", authRoutes);
 const paymentRoutes = require("./routes/paymentRoutes");
 app.use("/payment", paymentRoutes);
 
+const mainScreenRoutes = require("./routes/mainScreenRoutes");
+app.use("/main-screen", mainScreenRoutes);
+
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
