@@ -1,4 +1,4 @@
-const mainScreenController = require('../controllers/mainScreenController');
+const mainScreenService = require('../services/mainScreenService');
 
 /**
  * @description Obtener el nombre de usuario dado el id de usuario
