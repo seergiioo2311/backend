@@ -42,11 +42,21 @@ app.get("/", (req, res) => {
   res.send("¡Servidor funcionando! 🚀");
 });
 
+// Rutas de autenticación
 const authRoutes = require("./routes/authRoutes");
 app.use("/auth", authRoutes);
 
+// Rutas de usuario
 const paymentRoutes = require("./routes/paymentRoutes");
 app.use("/payment", paymentRoutes);
+
+// Rutas de la pantalla principal
+const mainScreenRoutes = require("./routes/mainScreenRoutes");
+app.use("/main-screen", mainScreenRoutes);
+
+// Rutas de amigos
+const friendRoutes = require("./routes/friendRoutes");
+app.use("/friend", friendRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {
