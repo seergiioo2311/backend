@@ -3,9 +3,9 @@ const {get_friends, add_friend, del_friend, check_user} = require('../controller
 
 const router = express.Router();
 
-router.get('/friends/:id', get_friends);
-router.post('/friends/:id', add_friend);
-router.delete('/friends/:id', del_friend);
-router.get('/friends/:id/check_user', check_user);
+router.get('/:id', get_friends);
+router.post('/:id', add_friend);
+router.delete('/:id', del_friend);
+router.get('/:id/check_user', check_user);
 
 module.exports = router;
