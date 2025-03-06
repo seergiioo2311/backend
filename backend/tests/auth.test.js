@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = require('../src/app');
 
-describe("🧪 API de autenticación (Chatti)", () => {
+describe("🧪 API de autenticación", () => {
 
   // ---------- Tests para SIGN-IN (login) ----------
 
