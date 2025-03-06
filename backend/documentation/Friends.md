@@ -121,11 +121,15 @@ Esta API permite gestionar la lista de amigos de un usuario, permitiendo obtener
 
 ### 📌 Respuesta de la Petición
 ~~~json
-{message: "Usuario encontrado"}
+{
+"message": "Usuario encontrado"
+}
 ~~~
 O
 ~~~json
-{message: "Usuario no encontrado"}
+{
+"message": "Usuario no encontrado"
+}
 ~~~
 Dependiendo de si el usuario existe o no en la base de datos.
 
