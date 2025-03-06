@@ -108,14 +108,14 @@ Esta API permite gestionar la lista de amigos de un usuario, permitiendo obtener
 ### 📌 Parámetros en la ruta:
 | Nombre  | Tipo  | Descripción                                           |
 |---------|-------|-------------------------------------------------------|
-| `id`    | String / Number | ID que se está usando para la comprobación (por ruta). |
+| `username`    | String / Number | ID que se está usando para la comprobación (por ruta). |
 
 > **Importante:** Aunque la ruta está definida como `GET`, en el código se toma `req.body.id` para la comprobación. Si necesitas comprobar a un usuario específico, asegúrate de enviar su ID en el body. 
 
 ### 📌 Cuerpo de la Petición:
 ~~~json
 {
-  "id": "ID_del_usuario_que_se_desea_comprobar"
+  "username": "nombre_de_usuario_a_comprobar"
 }
 ~~~
 
