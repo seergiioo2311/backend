@@ -49,8 +49,4 @@ app.use("/main-screen", mainScreenRoutes);
 const friendRoutes = require("./routes/friendRoutes");
 app.use("/friend", friendRoutes);
 
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
-
+module.exports = app;
