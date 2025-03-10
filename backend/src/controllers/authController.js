@@ -87,6 +87,11 @@ async function sendMail(email, token) {
 const sign_up = async (req, res) => {
     try {
         const {username, email, password} = req.body; //Extraemos los datos del body de la petición recibida
+        
+        if (!username || !email || !password) {    
+          return res.status(400).json({message: 'El nombre de usuario, correo electrónico y contraseña son requeridos'}); //Si alguno de los campos no es proporcionado, retornamos un mensaje de error
+        }
+
         //Primero deberemos verificar si el usuario ya existe en la base de datos
         const user_exists = await Loggin.findOne({where: {email}}); //Buscamos si el usuario ya existe en la base de datos 
         if (user_exists) {
@@ -113,10 +118,15 @@ const sign_up = async (req, res) => {
 const sign_in = async (req, res) => {
     try {
         const { email, password } = req.body;
+
+        if (!email || !password) {
+          return res.status(400).json({ message: 'El correo electrónico y la contraseña son requeridos' });
+        }
+
         const user = await Loggin.findOne({ where: { email } });
 
         if (!user) {
-            return res.status(400).json({ message: 'Usuario o contraseña incorrectos' });
+            return res.status(401).json({ message: 'Usuario o contraseña incorrectos' });
         }
 
         const is_match = await bcrypt.compare(password, user.password);
@@ -144,7 +154,7 @@ const sign_in = async (req, res) => {
         user.refreshToken = refreshToken;
         await user.save();
 
-        res.json({ message: 'Inicio de Sesión Correcto', accessToken, refreshToken });
+        res.status(200).json({ message: 'Inicio de Sesión Correcto', accessToken, refreshToken });
     } catch (error) {
         return res.status(500).json({ message: 'Error al iniciar sesión', error });
     }
@@ -161,6 +171,11 @@ const sign_in = async (req, res) => {
 const forgot_password = async (req, res) => {
     try {
         const {email} = req.body; //De la peticion recibida extraemos el correo electronico del usuario el cual quiere comenzar el proceso de recuperacion de contraseña
+        
+        if(!email) {
+          return res.status(400).json({message: 'El correo electronico es requerido'}); //Si el correo electronico no es proporcionado, retornamos un mensaje de error
+        }
+        
         const user = await Loggin.findOne({where: {email}}); // Buscamos el usuario en la base de datos
 
         if(!user) {
@@ -181,11 +196,42 @@ const forgot_password = async (req, res) => {
             return res.status(500).json({message: 'Error al enviar el correo de recuperación'}); //Si hay un error al enviar el correo, retornamos un mensaje de error
         }
 
-        res.json({message: 'Correo de recuperación enviado con éxito'}); //Retornamos un mensaje de éxito
+        res.status(200).json({message: 'Correo de recuperación enviado con éxito'}); //Retornamos un mensaje de éxito
     } catch (error) {
         console.error(error);
         res.status(500).json({message: 'Error al solicitar recuperación de contraseña', error});
     }
+}
+
+/**
+ * @description Función para eliminar un usuario 
+ * @param {Object} req - Objeto de solicitud de express que contiene el email del usuario en `req.body`
+ * @param {Object} res - Objeto de respuesta de express que contiene el mensaje de éxito o error
+ * @returns {Promise<void>} - Devuelve una respuesta json indicando el estado de la solictud
+ * @throws {Error} - Lanza un error si hay un problema al eliminar el usuario
+ */
+const delete_user = async (req, res) => {
+  try {
+    const { email } = req.body;
+  
+    if (!email) {
+      return res.status(400).json({ message: 'El correo electrónico es requerido' });
+    }
+
+    const user = await Loggin.findOne({ where: { email } });
+
+    if (!user) {
+      return res.status(404).json({ message: 'El usuario solicitado no existe' });
+    }
+
+    await user.destroy();
+
+    res.status(200).json({ message: 'Usuario eliminado con éxito' });
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al eliminar el usuario', error });
+  }
 }
 
 /**
@@ -268,4 +314,4 @@ const refresh_token = async (req, res) => {
   }
 };
 
-module.exports = {sign_in, sign_up, forgot_password, reset_password, refresh_token}; //Exportamos las funciones login y register para poder usarlas en otros archivos del proyecto
+module.exports = {sign_in, sign_up, forgot_password, reset_password, refresh_token, delete_user}; //Exportamos las funciones login y register para poder usarlas en otros archivos del proyecto
