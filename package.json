@@ -1,9 +1,0 @@
-{
-  "devDependencies": {
-    "jsdoc": "^4.0.4"
-  },
-  "dependencies": {
-    "csv-parser": "^3.2.0",
-    "pg-hstore": "^2.3.4"
-  }
-}

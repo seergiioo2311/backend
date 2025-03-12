@@ -2,6 +2,12 @@ const { DataTypes } = require("sequelize");
 const { sequelize_game } = require("../config/db.js");
 const User = require("./User.js");
 
+const FRIEND_STATUS = {
+    PENDING: "Pending",
+    DENIED: "Denied",
+    ACCEPTED: "Accepted"
+};
+
 const Friend = sequelize_game.define(
     "Friend",
     {
@@ -26,6 +32,10 @@ const Friend = sequelize_game.define(
             }, 
             onDelete: "CASCADE",
             onUpdate: "CASCADE"
+        },
+        status: {
+            type: DataTypes.ENUM(...Object.values(FRIEND_STATUS)),
+            allowNull: false
         }
     },
     {
@@ -40,4 +50,4 @@ User.belongsToMany(User, {
     otherKey: "id_friend_2"
 });
 
-module.exports = Friend;
+module.exports = { Friend, FRIEND_STATUS };

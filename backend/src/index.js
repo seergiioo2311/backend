@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const importarDatos = require("../data/insert_leves.js");
-//const bodyParser = require("body-parser");
+const { importUsers, importLevels } = require("../data/insert_data.js");
 
 const { connectDB, sequelize_loggin, sequelize_game } = require("./config/db");
 
@@ -21,7 +20,8 @@ const sync_database = async () => {
     await sequelize_game.sync({ force: true });
     console.log("[ + ] Base de datos del juego sincronizada correctamente");
 
-    await importarDatos();
+    await importLevels();
+    await importUsers();
   } catch (error) {
     console.error("[ - ] Error sincronizando la base de datos de loggin:", error);
     process.exit(1);
