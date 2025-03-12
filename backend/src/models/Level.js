@@ -7,12 +7,13 @@ const Level = sequelize_game.define(
         level_number: {
             type: DataTypes.INTEGER,
             primaryKey: true,
-            autoIncrement: true,
+            allowNull: false,
             unique: true
         },
-        experience_requierd: {
+        experience_required: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: false,
+            unique: true
         }
     }, 
     {
