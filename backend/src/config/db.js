@@ -5,7 +5,7 @@ require("dotenv").config(); // Cargar variables de entorno
 const sequelize_loggin = new Sequelize(
   process.env.DB_NAME_LOGGIN, // Nombre de la base de datos
   process.env.DB_USER, // Usuario de la base de datos
-  process.env.DB_PASSWORD_LOGGIN, // Contraseña
+  process.env.DB_PASSWORD, // Contraseña
   {
     host: process.env.DB_HOST, // Servidor donde está la BD
     dialect: "postgres", // Tipo de base de datos
@@ -17,7 +17,7 @@ const sequelize_loggin = new Sequelize(
 const sequelize_game = new Sequelize(
   process.env.DB_NAME_GAME, // Nombre de la base de datos
   process.env.DB_USER, // Usuario de la base de datos
-  process.env.DB_PASSWORD_GAME, // Contraseña
+  process.env.DB_PASSWORD, // Contraseña
   {
     host: process.env.DB_HOST, // Servidor donde está la BD
     dialect: "postgres", // Tipo de base de datos
