@@ -1,3 +1,5 @@
+const { QueryTypes } = require('sequelize');
+const { sequelize_game } = require('../config/db');
 const User = require('../models/User');
 
 /**
@@ -34,4 +36,28 @@ async function updateConnection(userId) {
   }
 }
 
-module.exports = { getUsernameById, updateConnection };
+/**
+ * @description Obtiene todas las skins desbloqueadas por un usuario
+ * @param {Request} req - Request de Express
+ * @param {Response} res - Response de Express
+ * @returns {Response} - Devuelve un mensaje de éxito si se actualiza la conexión y uno de error en caso de error
+ * @throws {Error} - Maneja errores internos del servidor
+ */
+async function getUnlockedSkins(userId) {
+  try {
+    const [results, metadata] = await sequelize_game.query(
+      `SELECT i.*
+        FROM Items i
+        WHERE i.type = "Skin"
+      ` 
+      ,{
+        type: QueryTypes.SELECT
+      });
+    return results;
+  }
+  catch (error) {
+    return {message: error.message};
+  }
+}
+
+module.exports = { getUsernameById, updateConnection, getUnlockedSkins };

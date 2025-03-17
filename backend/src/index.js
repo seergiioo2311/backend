@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
-const { connectDB, sequelize_loggin } = require("./config/db");
+const { importUsers, importLevels } = require("../data/insert_data.js");
+
+const { connectDB, sequelize_loggin, sequelize_game } = require("./config/db");
 
 require("dotenv").config();
 
@@ -12,12 +14,19 @@ const PORT = process.env.PORT || 3000;
  */
 const sync_database = async () => {
   try {
-    await sequelize_loggin.sync({ alter: true });
-    console.log("[ + ] Base de datos sincronizada correctamente");
+    await sequelize_loggin.sync({ force: true });
+    console.log("[ + ] Base de datos de loggin sincronizada correctamente");
+    
+    await sequelize_game.sync({ force: true });
+    console.log("[ + ] Base de datos del juego sincronizada correctamente");
+
+    await importLevels();
+    await importUsers();
   } catch (error) {
-    console.error("[ - ] Error sincronizando la base de datos:", error);
+    console.error("[ - ] Error sincronizando la base de datos de loggin:", error);
     process.exit(1);
   }
+  
 };
 
 connectDB().then(sync_database);
