@@ -56,7 +56,7 @@ app.use("/main-screen", mainScreenRoutes);
 
 // Rutas de amigos
 const friendRoutes = require("./routes/friendRoutes");
-app.use("/friend", friendRoutes);
+app.use("/friends", friendRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {
