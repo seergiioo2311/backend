@@ -10,7 +10,7 @@ const mainScreenService = require('../services/mainScreenService');
 const get_user = async (req, res) => {
   try{
     const user = req.params.id;
-    const user_by_id = await mainScreenService.getUsernameById(user);
+    const user_by_id = mainScreenService.getUsernameById(user);
     if(user_by_id) {
       res.status(200).json(user_by_id);
     }
@@ -33,7 +33,7 @@ const get_user = async (req, res) => {
 const update_connection = async (req, res) => {
   try {
     const user_id = req.params.id;
-    const to_update_user = await mainScreenService.getUsernameById(user_id);
+    const to_update_user = mainScreenService.getUsernameById(user_id);
     
     //En caso de no encontrar el usuario
     if(!to_update_user) {
@@ -58,7 +58,7 @@ const update_connection = async (req, res) => {
 const get_unlocked_skins = async(req, res) => {
   try {
     const user_id = req.params.id;
-    const user = await mainScreenService.getUsernameById(user_id);
+    const user = mainScreenService.getUsernameById(user_id);
     
     if(!user) {
       res.status(404).json({message: "Usuario no encontrado"});

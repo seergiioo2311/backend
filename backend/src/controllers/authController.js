@@ -5,6 +5,8 @@ const crypto = require('crypto'); //Importamos crypto para generar el token de r
 const transporter = require('../config/email.js'); //Importamos el transporter del correo electronico
 const path = require("path"); //Importamos path para poder acceder a la ruta de la imagen del logo
 const { Op } = require('sequelize');
+const User = require('../models/User.js');
+const { v4: uuidv4 } = require('uuid'); 
 
 /**
  * 
@@ -94,12 +96,15 @@ const sign_up = async (req, res) => {
 
         //Primero deberemos verificar si el usuario ya existe en la base de datos
         const user_exists = await Loggin.findOne({where: {email}}); //Buscamos si el usuario ya existe en la base de datos 
-        if (user_exists) {
+        const user_exists_username = await User.findOne({where: {username}}); //Buscamos si el usuario ya existe en la base de datos
+        if (user_exists || user_exists_username) {
             return res.status(400).json({message: `El usuario con email ${email} ya existe`}); //Si el usuario ya existe, retornamos un mensaje de error 
         }
         else{
-            const user = await Loggin.create({username, email, password}); //Si el usuario no existe, lo creamos en la base de datos
-            return res.status(201).json({message: 'Usuario creado con éxito', user:{username: user.username, email: user.email}}); //Retornamos un mensaje de éxito;
+            const id = uuidv4(); //Generamos un id unico para el usuario
+            const userGame = await User.create({id, username, experience: 0}); //Creamos un usuario en la tabla de usuarios del juego
+            const userLoggin = await Loggin.create({username, email, password}); //Si el usuario no existe, lo creamos en la base de datos
+            return res.status(201).json({message: 'Usuario creado con éxito', user:{username: userGame.username, id: userGame.id}}); //Retornamos un mensaje de éxito;
         }
     }
     catch (error) {

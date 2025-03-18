@@ -80,8 +80,11 @@ async function delFriend(userID1, userID2) {
  * @returns {Json} - Un objeto con un mensaje de éxito o error
  * @throws {Error} - Si no se encuentra
  */ 
-async function checkUser(userId) {
-  const user = await User.findByPk(userId);
+async function checkUser(username) {
+  const user = await User.findOne({
+    where: {name: username}
+  });
+
   if(user) {
     return {message: "Usuario encontrado"};
   }

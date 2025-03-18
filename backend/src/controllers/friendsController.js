@@ -81,7 +81,7 @@ const del_friend = async (req, res) => {
  */
 const check_user = async (req, res) => {
   try {
-    const user = req.body.id;
+    const user = req.body.username;
     const result = await friendsService.checkUser(user);
     res.status(200).json(result);
   }
