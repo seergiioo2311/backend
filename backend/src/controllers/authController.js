@@ -104,7 +104,7 @@ const sign_up = async (req, res) => {
             const id = uuidv4(); //Generamos un id unico para el usuario
             const userGame = await User.create({id, username, experience: 0}); //Creamos un usuario en la tabla de usuarios del juego
             const userLoggin = await Loggin.create({username, email, password}); //Si el usuario no existe, lo creamos en la base de datos
-            return res.status(201).json({message: 'Usuario creado con éxito', user:{username: userGame.username, id: userGame.id}}); //Retornamos un mensaje de éxito;
+            return res.status(201).json({message: 'Usuario creado con éxito', user:{username: userGame.username}}); //Retornamos un mensaje de éxito;
         }
     }
     catch (error) {
@@ -158,8 +158,10 @@ const sign_in = async (req, res) => {
         // Guardar el Refresh Token en la base de datos o en memoria (opcional)
         user.refreshToken = refreshToken;
         await user.save();
+        
+        const id = await User.findOne({where: {username: user.username}});
 
-        res.status(200).json({ message: 'Inicio de Sesión Correcto', accessToken, refreshToken });
+        res.status(200).json({ message: 'Inicio de Sesión Correcto', accessToken, refreshToken, id: id.id });
     } catch (error) {
         return res.status(500).json({ message: 'Error al iniciar sesión', error });
     }
