@@ -102,6 +102,7 @@ const sign_up = async (req, res) => {
         }
         else{
             const id = uuidv4(); //Generamos un id unico para el usuario
+            console.log("Id creado:", id);
             const userGame = await User.create({id, username, experience: 0}); //Creamos un usuario en la tabla de usuarios del juego
             const userLoggin = await Loggin.create({username, email, password}); //Si el usuario no existe, lo creamos en la base de datos
             return res.status(201).json({message: 'Usuario creado con éxito', user:{username: userGame.username}}); //Retornamos un mensaje de éxito;
@@ -160,6 +161,8 @@ const sign_in = async (req, res) => {
         await user.save();
         
         const id = await User.findOne({where: {username: user.username}});
+        console.log("El id enviado: ", id.id);
+        console.log("Id real del usuario:", User.id);
 
         res.status(200).json({ message: 'Inicio de Sesión Correcto', accessToken, refreshToken, id: id.id });
     } catch (error) {

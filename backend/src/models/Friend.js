@@ -12,18 +12,18 @@ const Friend = sequelize_game.define(
     "Friend",
     {
         id_friend_1: {
-            type: DataTypes.UUID,
+            type: DataTypes.STRING,
             allowNull: false,
             primaryKey: true, 
             references: {
                 model: User,
-                key: "id"
+                key: "username"
             }, 
             onDelete: "CASCADE",
             onUpdate: "CASCADE"
         },
         id_friend_2: {
-            type: DataTypes.UUID,
+            type: DataTypes.STRING,
             allowNull: false,
             primaryKey: true, 
             references: {
