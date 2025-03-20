@@ -4,6 +4,8 @@ const { importUsers, importLevels } = require("../data/insert_data.js");
 
 const { connectDB, sequelize_loggin, sequelize_game } = require("./config/db");
 
+const { insertUsers } = require("../data/insertUsers.js")
+
 require("dotenv").config();
 
 const app = express();
@@ -19,6 +21,8 @@ const sync_database = async () => {
     
     await sequelize_game.sync({ force: true });
     console.log("[ + ] Base de datos del juego sincronizada correctamente");
+
+    await insertUsers(); // Ejecutar el script para insertar usuarios
 
     await importLevels();
     await importUsers();

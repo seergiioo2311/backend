@@ -8,10 +8,30 @@ const User = require('../models/User');
  * @returns {string} - El nombre del usuario o null si no existe
  */
 async function getUsernameById(userId) {
-    const user = await User.findByPk(userId, {
-        attributes: ['name'] // Selecciona solo el campo 'name'
-    });
-    return user ? user.name : null; // Retorna solo el nombre o null si no existe
+  try {
+      console.log(`🔍 Buscando usuario con ID: ${userId}`);
+
+      // Verificar que el ID no sea undefined o null antes de buscarlo en la base de datos
+      if (!userId) {
+          console.warn("⚠️ ID de usuario no proporcionado.");
+          return null;
+      }
+
+      const user = await User.findByPk(userId, {
+          attributes: ["username"] // Solo seleccionamos el campo 'username'
+      });
+
+      if (!user) {
+          console.warn(`⚠️ No se encontró ningún usuario con el ID: ${userId}`);
+          return null; // Retornamos null si no existe
+      }
+
+      console.log(`✅ Usuario encontrado: ${user.username}`);
+      return user.username;
+  } catch (error) {
+      console.error("❌ Error al obtener el usuario:", error);
+      return null;
+  }
 }
 
 /**

@@ -10,15 +10,18 @@ const mainScreenService = require('../services/mainScreenService');
 const get_user = async (req, res) => {
   try{
     const user = req.params.id;
-    const user_by_id = mainScreenService.getUsernameById(user);
+    const user_by_id = await mainScreenService.getUsernameById(user);
     if(user_by_id) {
-      res.status(200).json(user_by_id);
+      console.log("ID de usuario devuelto correctamente", user_by_id);
+      res.status(200).json({ username: user_by_id });
     }
     else{
+      console.log("Error1");
       res.status(404).json({message: "Ususario no encontrado"});
     }
   }
   catch(error) {
+    console.log("Error2");
     res.status(500).json({message: error.message});
   }
 }
