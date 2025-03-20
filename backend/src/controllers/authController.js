@@ -1,4 +1,4 @@
-const Loggin = require('../models/Loggin.js'); //Importamos el modelo user
+onst Loggin = require('../models/Loggin.js'); //Importamos el modelo user
 const bcrypt = require('bcrypt'); //Importamos bcryptjs para encriptar las contraseña aumentando la seguridad
 const jwt = require('jsonwebtoken'); //Importamos jsonwebtoken para generar el token y poder usar OAuth
 const crypto = require('crypto'); //Importamos crypto para generar el token de recuperacion de contraseña

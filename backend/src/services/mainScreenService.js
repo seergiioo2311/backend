@@ -26,7 +26,12 @@ async function updateConnection(userId) {
       { lastConnection: new Date() },
       { where: { id: userId } }
     );
-    if(updatedRows > 0) {
+    const [connectionRows] = await User.update(
+      { status: true },
+      { where: { id: userId } }
+    );
+
+    if(updatedRows == 0 || connectionRows == 0) {
       throw new Error('Usuario no encontrado');
     }
     return {message: 'Usuario actualizado'};
@@ -49,6 +54,8 @@ async function getUnlockedSkins(userId) {
       `SELECT i.*
         FROM Items i
         WHERE i.type = "Skin"
+        JOIN UserItems ui ON i.id = ui.id_item
+        WHERE ui.id_user = ${userId}
       ` 
       ,{
         type: QueryTypes.SELECT
