@@ -27,6 +27,32 @@ const get_user = async (req, res) => {
 }
 
 /**
+ * @description Obtener el nombre de usuario dado el id de usuario
+ * @param {Request} req - Request de Express
+ * @param {Response} res - Response de Express
+ * @returns {Response} - Devuelve el id de usuario si se encuentra un usuario con el username dado
+ * @throws {Error} - Maneja errores internos del servidor
+ */
+const get_id = async (req, res) => {
+  try{
+    const username = req.params.username;
+    const user_id = await mainScreenService.getIdByUsername(username);
+    if(user_id) {
+      console.log("Username de usuario devuelto correctamente", user_id);
+      res.status(200).json({ id: user_id });
+    }
+    else{
+      console.log("Error1");
+      res.status(404).json({message: "Ususario no encontrado"});
+    }
+  }
+  catch(error) {
+    console.log("Error2");
+    res.status(500).json({message: error.message});
+  }
+}
+
+/**
  * @description Actualiza la fecha de última conexión del usuario dado un id de usuario
  * @param {Request} req - Request de Express
  * @param {Response} res - Response de Express
@@ -74,4 +100,4 @@ const get_unlocked_skins = async(req, res) => {
   }
 }
 
-module.exports = { get_user, update_connection, get_unlocked_skins };
+module.exports = { get_user, get_id, update_connection, get_unlocked_skins };
