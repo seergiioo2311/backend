@@ -26,6 +26,31 @@ const get_friends = async (req, res) => {
 }
 
 /**
+ * @description Obtiene los solicitudes de amistad de un usuario
+ * @param {Request} req - Request de Express
+ * @param {Response} res - Response de Express
+ * @returns {Response} - Devuelve los amigos del usuario
+ * @throws {Error} - Maneja errores internos del servidor
+ */
+const get_solicitudes = async (req, res) => {
+  try {
+    const user = req.params.id;
+    const result = await friendsService.checkUser(user);
+    
+    //Si el usuario no existe en la base de datos
+    if (!result) {
+      throw new Error("User not found");
+    }
+
+    const friends = await friendsService.getSolicitudes(user);
+    res.status(200).json(friends);
+  }
+  catch(error) {
+    res.status(500).json({message: error.message});
+  }
+}
+
+/**
  * @description Agrega un amigo a un usuario
  * @param {Request} req - Request de Express
  * @param {Response} res - Response de Express
@@ -69,6 +94,11 @@ const add_solicitud = async (req, res) => {
 
     const user1 = req.params.id;
     const user2 = req.body.id;
+    // Evitar que se envien solicitudes a uno mismo
+    if (user1 == user2) {
+      res.status(500).json({ message: "No te puedes enviar una solicitud a ti mismo" });
+      return;
+    } 
     
     // Verificamos el estado de ambos usuarios
     console.log("🔄 Verificando usuarios...");
@@ -87,6 +117,11 @@ const add_solicitud = async (req, res) => {
     // Intentamos agregar la solicitud de amistad
     console.log("🔄 Enviando solicitud de amistad...");
     const result = await friendsService.addSolicitud(user1, user2);
+    if (result.message != "Solicitud enviada.") {
+      console.error("❌ Error en el servidor:", result.message);
+      res.status(500).json({ message: result.message });
+      return;
+    } 
     console.log("✅ Resultado de la solicitud de amistad:", result);
     
     // Respondemos con el resultado
@@ -96,6 +131,34 @@ const add_solicitud = async (req, res) => {
     // Si hay un error, lo imprimimos en la consola
     console.error("❌ Error en el servidor:", error);
     res.status(500).json({ message: error.message });
+  }
+}
+
+/**
+ * @description Rechaza una solicitud de amistad
+ * @param {Request} req - Request de Express
+ * @param {Response} res - Response de Express
+ * @returns {Response} - Devuelve un mensaje de éxito o error
+ * @throws {Error} - Maneja errores internos del servidor
+ */
+const deny_solicitud = async (req, res) => {
+  try {
+    const user1 = req.params.id;
+    const user2 = req.body.id;
+    
+    const status1 = await friendsService.checkUser(user1);
+    const status2 = await friendsService.checkUser(user2);
+    
+    // En caso de que alguno de los usuarios no exista
+    if(!status1 || !status2) {
+      throw new Error("User not found");
+    }
+
+    const result = await friendsService.denySolicitud(user1, user2);
+    res.status(200).json(result);
+  }
+  catch(error) {
+    res.status(500).json({message: error.message});
   }
 }
 

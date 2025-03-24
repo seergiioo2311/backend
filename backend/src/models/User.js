@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const { sequelize_game, connectDB } = require("../config/db.js");
+const { sequelize_game } = require("../config/db.js");
 
 const User = sequelize_game.define(
     "User",
@@ -25,9 +25,10 @@ const User = sequelize_game.define(
         },
         lastConnection: {
             type: DataTypes.DATE,
-            allowNull: false, 
+            allowNull: false,
             defaultValue: DataTypes.NOW
         },
+
         status: {
           type: DataTypes.BOOLEAN,
           defaultValue: true,
@@ -39,4 +40,6 @@ const User = sequelize_game.define(
     }
 );
 
-module.exports = User;
+module.exports = User; // Export the User model
+
+

@@ -35,6 +35,39 @@ async function getUsernameById(userId) {
 }
 
 /**
+ * @description Obtiene el nombre de un usuario por su id 
+ * @param {number} username - El username del usuario
+ * @returns {uuid} - El id del usuario o null si no existe
+ */
+async function getIdByUsername(username) {
+  try {
+      console.log(`🔍 Buscando usuario con nombre de usuario: ${username}`);
+
+      // Verificar que el username no sea undefined o null antes de buscarlo en la base de datos
+      if (!username) {
+          console.warn("⚠️ Nombre de usuario no proporcionado.");
+          return null;
+      }
+
+      const user = await User.findOne({
+          where: { username: username }, // Filtramos por el campo 'username'
+          attributes: ["id"] // Solo seleccionamos el campo 'id'
+      });
+
+      if (!user) {
+          console.warn(`⚠️ No se encontró ningún usuario con el nombre de usuario: ${username}`);
+          return null; // Retornamos null si no existe
+      }
+
+      console.log(`✅ Usuario encontrado: ${user.id}`);
+      return user.id;
+  } catch (error) {
+      console.error("❌ Error al obtener el ID del usuario:", error);
+      return null;
+  }
+}
+
+/**
  * @description Actualiza la fecha de última conexión de un usuario
  * @param {number} userId - El id del usuario
  * @returns {object} - Un objeto con un mensaje de éxito o error
@@ -87,4 +120,4 @@ async function getUnlockedSkins(userId) {
   }
 }
 
-module.exports = { getUsernameById, updateConnection, getUnlockedSkins };
+module.exports = { getUsernameById, getIdByUsername, updateConnection, getUnlockedSkins };
