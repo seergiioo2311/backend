@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { importUsers, importLevels } = require("../data/insert_data.js");
+const { importUsers, importLevels, importAchievements, importUserAch } = require("../data/insert_data.js");
 
 const { connectDB, sequelize_loggin, sequelize_game } = require("./config/db");
 
@@ -23,9 +23,13 @@ const sync_database = async () => {
     console.log("[ + ] Base de datos del juego sincronizada correctamente");
 
     await insertUsers(); // Ejecutar el script para insertar usuarios
-
+    
+    //Insertamos los datos en la base de datos
     await importLevels();
     await importUsers();
+    await importAchievements();
+    await importUserAch();
+
   } catch (error) {
     console.error("[ - ] Error sincronizando la base de datos de loggin:", error);
     process.exit(1);
@@ -61,6 +65,9 @@ app.use("/main-screen", mainScreenRoutes);
 // Rutas de amigos
 const friendRoutes = require("./routes/friendRoutes");
 app.use("/friends", friendRoutes);
+
+const achievementRoutes = require("./routes/achievementsRoutes");
+app.use("/achievements", achievementRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {

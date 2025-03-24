@@ -136,7 +136,6 @@ const check_user = async (req, res) => {
   }
 }
 
-<<<<<<< HEAD
 const check_connection = async (req, res) => {
   
   try {
@@ -149,7 +148,4 @@ const check_connection = async (req, res) => {
   }
 }
 
-module.exports = { get_friends, add_friend, del_friend, check_user, check_connection };
-=======
-module.exports = { get_friends, add_friend, add_solicitud, del_friend, check_user };
->>>>>>> upstream/main
+module.exports = { get_friends, add_friend, del_friend, check_user, check_connection, add_solicitud };

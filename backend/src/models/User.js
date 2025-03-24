@@ -30,6 +30,7 @@ const User = sequelize_game.define(
         },
         status: {
           type: DataTypes.BOOLEAN,
+          defaultValue: true,
           allowNull: false
         }
     }, 

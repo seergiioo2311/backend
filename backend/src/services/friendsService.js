@@ -138,7 +138,6 @@ async function checkUser(username) {
   }
 }
 
-<<<<<<< HEAD
 async function checkConnection(username) {
   const user = await User.findOne({
     where: {username: username}
@@ -152,6 +151,3 @@ async function checkConnection(username) {
 }
 
 module.exports = { getFriends, addFriend, delFriend, checkUser, checkConnection };
-=======
-module.exports = { getFriends, addFriend, addSolicitud, delFriend, checkUser };
->>>>>>> upstream/main
