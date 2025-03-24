@@ -3,6 +3,8 @@ const path = require('path');
 const csv = require('csv-parser');
 const Level = require("../src/models/Level.js");
 const User = require("../src/models/User.js");
+const Achievement = require("../src/models/Achievement.js");
+const User_achievement = require("../src/models/User_achievement.js");
 
 /**
  * Función para validar y convertir UUID.
@@ -132,4 +134,98 @@ async function importLevels() {
     });
 }
 
-module.exports = { importUsers, importLevels };
+/**
+  * @description Esta función es encargada de introducir los logros en la tabla Achievements.
+  * @returns {Promise<void>}
+  * @throws {Error} - Si ocurre un error al insertar los logros en la base de datos
+  */
+async function importAchievements() {
+  const filePath = path.resolve(__dirname, 'achievements.csv'); // Corregido typo en el nombre del archivo
+  const achievements = [];
+
+  return new Promise((resolve, reject) => {
+    fs.createReadStream(filePath)
+      .pipe(csv({ separator: ',', headers: ['name', 'description', 'experience_otorgued'] })) // Headers actualizados
+      .on('data', (row) => {
+        // Validación y conversión de tipos
+        const experience = parseInt(row.experience_otorgued, 10);
+        
+        if (!isNaN(experience) && row.name && row.description) {
+          achievements.push({
+            name: row.name.trim(),
+            description: row.description.trim(),
+            experience_otorgued: experience
+          });
+        }
+      })
+      .on('end', async () => {
+        if (achievements.length === 0) {
+          console.error('[ - ] Archivo CSV vacío o datos inválidos');
+          return reject(new Error('Datos inválidos'));
+        }
+
+        try {
+          await Achievement.bulkCreate(achievements, { validate: true });
+          console.log(`[ + ] ${achievements.length} logros insertados correctamente`);
+          resolve();
+        } catch (error) {
+          console.error('[ - ] Error en la base de datos:', error);
+          reject(error);
+        }
+      })
+      .on('error', (err) => {
+        console.error('[ - ] Error de lectura de CSV:', err);
+        reject(err);
+      });
+  });
+}
+
+/**
+  * @description Esta función es encargada de introducir las relaciones entre usuarios y logros en la tabla User_achievements.
+  * @returns {Promise<void>} - Promesa que se resuelve al finalizar la inserción de los datos
+  * @throws {Error} - Si ocurre un error al insertar los datos en la base de datos
+  */
+async function importUserAch() {
+  const filePath = path.resolve(__dirname, 'user_ach.csv');
+  const userAchievements = [];
+
+  return new Promise((resolve, reject) => {
+    fs.createReadStream(filePath)
+      .pipe(csv({ separator: ';', headers: ['id_user', 'id_achievement', 'achieved'] }))
+      .on('data', (row) => {
+        const idUser = parseUUID(row.id_user);
+        const idAchievement = parseInt(row.id_achievement, 10);
+        
+        // Conversión a booleano
+        const achieved = String(row.achieved).toLowerCase() === 'true';
+
+        // Validación mejorada
+        if (idUser && !isNaN(idAchievement && typeof achieved === 'boolean')) {
+          userAchievements.push({
+            id_user: idUser,
+            id_achievement: idAchievement,
+            achieved: achieved
+          });
+        }
+      })
+      .on('end', async () => {
+        try {
+          await User_achievement.bulkCreate(userAchievements, {
+            validate: true,
+            ignoreDuplicates: true
+          });
+          console.log(`[ + ] ${userAchievements.length} relaciones insertadas`);
+          resolve();
+        } catch (error) {
+          console.error('[ - ] Error al insertar relaciones:', error);
+          reject(error);
+        }
+      })
+      .on('error', (err) => {
+        console.error('[ - ] Error de lectura CSV:', err);
+        reject(err);
+      });
+  });
+}
+
+module.exports = { importUsers, importLevels, importAchievements, importUserAch };

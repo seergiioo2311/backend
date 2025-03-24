@@ -239,4 +239,16 @@ async function checkUser(userId) {
   }
 }
 
-module.exports = { getFriends, getSolicitudes, addFriend, addSolicitud, denySolicitud, delFriend, checkUser };
+async function checkConnection(username) {
+  const user = await User.findOne({
+    where: {username: username}
+  });
+  if(user.status) {
+    return {message: "Usuario online"};
+  }
+  else {
+    return {message: "Usuario offline"}
+  }
+}
+
+module.exports = { getFriends, addFriend, delFriend, checkUser, checkConnection };

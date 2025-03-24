@@ -7,6 +7,8 @@ const path = require("path"); //Importamos path para poder acceder a la ruta de 
 const { Op } = require('sequelize');
 const User = require('../models/User.js');
 const { v4: uuidv4 } = require('uuid'); 
+const User_Achievement = require('../models/User_achievement.js');
+const Achievement = require('../models/Achievement.js');
 
 /**
  * 
@@ -103,6 +105,13 @@ const sign_up = async (req, res) => {
         else{
             const id = uuidv4(); //Generamos un id unico para el usuario
             console.log("Id creado:", id);
+            
+            const achievements = await Achievement.findAll(); //Obtenemos todos los logros
+            //Tenemos que asignar los logros
+            for(let i = 0; i < achievements.length; i++){
+                await User_Achievement.create({id, achievement_id: achievements[i].id, achieved: false}); //Creamos todos los logros para el usuario
+            }
+            
             const userGame = await User.create({id, username, experience: 0}); //Creamos un usuario en la tabla de usuarios del juego
             const userLoggin = await Loggin.create({username, email, password}); //Si el usuario no existe, lo creamos en la base de datos
             return res.status(201).json({message: 'Usuario creado con éxito', user:{username: userGame.username}}); //Retornamos un mensaje de éxito;

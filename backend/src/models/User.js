@@ -28,7 +28,13 @@ const User = sequelize_game.define(
             allowNull: false,
             defaultValue: DataTypes.NOW
         },
-    },
+
+        status: {
+          type: DataTypes.BOOLEAN,
+          defaultValue: true,
+          allowNull: false
+        }
+    }, 
     {
         timestamps: true
     }

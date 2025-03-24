@@ -199,4 +199,16 @@ const check_user = async (req, res) => {
   }
 }
 
-module.exports = { get_friends, get_solicitudes, add_friend, add_solicitud, deny_solicitud, del_friend, check_user };
+const check_connection = async (req, res) => {
+  
+  try {
+    const user = req.body.username;
+    const result = await friendsService.checkConnection(user);
+    res.status(200).json(result);
+  }
+  catch {
+    res.status.json({message: error.message});
+  }
+}
+
+module.exports = { get_friends, add_friend, del_friend, check_user, check_connection, add_solicitud };
