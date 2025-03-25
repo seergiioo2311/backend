@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const { sequelize_loggin, connectDB, sequelize_game } = require("../config/db.js");
 
 const ITEM_TYPE = {
-    SKIN: "Skin"
+    SKIN: "skin",
 };
 
 const Item = sequelize_game.define(
