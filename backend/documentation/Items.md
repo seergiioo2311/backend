@@ -3,9 +3,9 @@
 Esta API permite gestionar los items de un usuario, asi como permitir "desbloquear" items y seleccionar los items.
 
 ---
-## 🤝 1. Desbloquear item
-**Método:** `POST`  
-**URL:** `http://localhost:3000/items/assign-item`  
+## 🤝 1. Obtener items de un usuario 
+**Método:** `GET`  
+**URL:** `http://localhost:3000/items/get-all-items`  
 
 ### 📌 Headers:
 | Clave        | Valor               |
@@ -26,7 +26,7 @@ Esta API permite gestionar los items de un usuario, asi como permitir "desbloque
 }
 ~~~
 ---
-## 🤝 1. Desbloquear item
+## 🤝 2. Desbloquear item
 **Método:** `POST`  
 **URL:** `http://localhost:3000/items/assign-item`  
 
