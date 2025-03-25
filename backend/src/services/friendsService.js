@@ -251,4 +251,4 @@ async function checkConnection(username) {
   }
 }
 
-module.exports = { getFriends, addFriend, delFriend, checkUser, checkConnection };
+module.exports = { getFriends, getSolicitudes, addFriend, addSolicitud, denySolicitud, delFriend, checkUser, checkConnection };

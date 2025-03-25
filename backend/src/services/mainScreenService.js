@@ -1,6 +1,8 @@
 const { QueryTypes } = require('sequelize');
 const { sequelize_game } = require('../config/db');
 const User = require('../models/User');
+const Loggin = require('../models/Loggin');
+const bcrypt = require('bcrypt');
 
 /**
  * @description Obtiene el nombre de un usuario por su id 
@@ -120,4 +122,60 @@ async function getUnlockedSkins(userId) {
   }
 }
 
-module.exports = { getUsernameById, getIdByUsername, updateConnection, getUnlockedSkins };
+/**
+ * @description Actualiza los datos del usuario
+ * @param {Request} req - Request de Express
+ * @param {Response} res - Response de Express
+ * @returns {Response} - Devuelve un mensaje de éxito si se actualizan los datos del usuario y uno de error en caso de error
+ * @throws {Error} - Maneja errores internos del servidor
+ */
+async function updateUser(userId, newUsername, newPassword) {
+  try {
+    // Verificar que se proporcionaron datos
+    if (!userId || (!newUsername && !newPassword)) {
+      return { message: 'Se requiere userId y al menos un campo de actualización (username o password)' };
+    }
+
+    // Buscar el usuario por su ID
+    const user = await User.findOne({ where: { id: userId } });
+    if (!user) {
+      return { message: 'Usuario no encontrado' };
+    }
+
+    const loggin = await Loggin.findOne({ where: { username: user.username } });
+    if (!loggin) {
+      return { message: 'Login no encontrado' };
+    }
+
+    // Si se quiere actualizar el nombre de usuario
+    if (newUsername != user.username && newUsername) {
+      // Verificar si el nuevo nombre de usuario ya está en uso
+      const existingUser = await User.findOne({ where: { username: newUsername } });
+      const existingLoggin = await Loggin.findOne({ where: { username: newUsername } });
+      if (existingUser || existingLoggin) {
+        return { message: 'El nombre de usuario ya está en uso' };
+      }
+      user.username = newUsername; // Actualizar el username
+      loggin.username = newUsername;
+    }
+
+    // Si se quiere actualizar la contraseña
+    console.log(newPassword);
+    if (newPassword) {
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      loggin.password = hashedPassword; // Actualizar la contraseña
+    }
+
+    // Guardar los cambios
+    await user.save();
+    await loggin.save();
+
+    // Responder con éxito
+    return { message: 'OK' };
+  }
+  catch (error) {
+    return {message: error.message};
+  }
+}
+
+module.exports = { getUsernameById, getIdByUsername, updateConnection, getUnlockedSkins, updateUser };

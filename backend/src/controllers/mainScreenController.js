@@ -100,4 +100,35 @@ const get_unlocked_skins = async(req, res) => {
   }
 }
 
-module.exports = { get_user, get_id, update_connection, get_unlocked_skins };
+/**
+ * @description Actualiza los datos del usuario
+ * @param {Request} req - Request de Express
+ * @param {Response} res - Response de Express
+ * @returns {Response} - Devuelve un mensaje de éxito si se actualiza el usuario y uno de error en caso de error
+ * @throws {Error} - Maneja errores internos del servidor
+ */
+const update_user = async(req, res) => {
+  try {
+    const user_id = req.params.id;
+    const newUsername = req.body.username;
+    const newPassword = req.body.password;
+    const user = mainScreenService.getUsernameById(user_id);
+    console.log(newPassword);
+    
+    if(!user) {
+      res.status(404).json({message: "Usuario no encontrado"});
+    }
+
+    const result =  await mainScreenService.updateUser(user_id, newUsername, newPassword);
+    console.log(result);
+    if (result.message != "OK") {
+      res.status(500).json({message: result.message});
+    } else {
+      res.status(200).json(result);
+    }
+  } catch (error) {
+    res.status(500).json({message: error.message});
+  }
+}
+
+module.exports = { get_user, get_id, update_connection, get_unlocked_skins, update_user };
