@@ -4,7 +4,9 @@ const { importUsers, importLevels, importAchievements, importUserAch, importItem
 
 const { connectDB, sequelize_loggin, sequelize_game } = require("./config/db");
 
-const { insertUsers } = require("../data/insertUsers.js")
+const { insertUsers } = require("../data/insert_users.js");
+const { insertRequests } = require("../data/insert_requests.js");
+const { insertFriends } = require("../data/insert_friends.js");
 
 require("dotenv").config();
 
@@ -23,6 +25,8 @@ const sync_database = async () => {
     console.log("[ + ] Base de datos del juego sincronizada correctamente");
 
     await insertUsers(); // Ejecutar el script para insertar usuarios
+    await insertRequests();
+    //await insertFriends(); // Descomentar para ver los amigos en vez de las solicitudes
     
     //Insertamos los datos en la base de datos
     await importLevels();

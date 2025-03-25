@@ -138,20 +138,26 @@ const sign_in = async (req, res) => {
           return res.status(400).json({ message: 'El correo electrónico y la contraseña son requeridos' });
         }
 
-        const user = await Loggin.findOne({ where: { email } });
+        const loggin = await Loggin.findOne({ where: { email } });
+
+        if (!loggin) {
+            return res.status(401).json({ message: 'Usuario o contraseña incorrectos' });
+        }
+
+        const user = await User.findOne({ where: { username: loggin.username } });
 
         if (!user) {
             return res.status(401).json({ message: 'Usuario o contraseña incorrectos' });
         }
 
-        const is_match = await bcrypt.compare(password, user.password);
+        const is_match = await bcrypt.compare(password, loggin.password);
         if (!is_match) {
             return res.status(401).json({ message: 'Usuario o contraseña incorrectos' });
         }
 
         // Generar Access Token (válido por 2 horas)
         const accessToken = jwt.sign(
-            { id: user.id, email: user.email },
+            { id: user.id, email: loggin.email },
             process.env.JWT_SECRET,
             { expiresIn: '2h' }
         );
@@ -159,21 +165,21 @@ const sign_in = async (req, res) => {
         console.log("AccessToken generado con éxito");
         // Generar Refresh Token (válido por 7 días)
         const refreshToken = jwt.sign(
-            { id: user.id, email: user.email },
+            { id: user.id, email: loggin.email },
             process.env.JWT_REFRESH_SECRET, // Necesitas definir otra clave secreta para Refresh Tokens
             { expiresIn: '7d' }
         );
         console.log("RefreshToken generado con éxito");
 
         // Guardar el Refresh Token en la base de datos o en memoria (opcional)
-        user.refreshToken = refreshToken;
-        await user.save();
+        loggin.refreshToken = refreshToken;
+        await loggin.save();
         
-        const id = await User.findOne({where: {username: user.username}});
-        console.log("El id enviado: ", id.id);
-        console.log("Id real del usuario:", User.id);
+        // const id = await User.findOne({where: {username: loggin.username}});
+        // console.log("El id enviado: ", id.id);
+        // console.log("Id real del usuario:", User.id);
 
-        res.status(200).json({ message: 'Inicio de Sesión Correcto', accessToken, refreshToken, id: id.id });
+        res.status(200).json({ message: 'Inicio de Sesión Correcto', accessToken, refreshToken });
     } catch (error) {
         return res.status(500).json({ message: 'Error al iniciar sesión', error });
     }
