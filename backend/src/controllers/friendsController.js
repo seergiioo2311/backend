@@ -211,4 +211,4 @@ const check_connection = async (req, res) => {
   }
 }
 
-module.exports = { get_friends, get_solicitudes, add_friend, add_solicitud, deny_solicitud, del_friend, check_user, check_connection };
+module.exports = { get_friends, add_friend, del_friend, check_user, check_connection, add_solicitud, deny_solicitud, get_solicitudes, add_solicitud };

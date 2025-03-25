@@ -5,6 +5,7 @@ const Level = require("../src/models/Level.js");
 const User = require("../src/models/User.js");
 const Achievement = require("../src/models/Achievement.js");
 const User_achievement = require("../src/models/User_achievement.js");
+const { Item } = require("../src/models/Item.js");
 
 /**
  * Función para validar y convertir UUID.
@@ -228,4 +229,33 @@ async function importUserAch() {
   });
 }
 
-module.exports = { importUsers, importLevels, importAchievements, importUserAch };
+async function importItems() {
+  const filePath = path.resolve(__dirname, 'items.csv');
+  const items = [];
+
+  return new Promise((resolve, reject) => {
+    fs.createReadStream(filePath).pipe(csv({ separator: ',', headers: ['name', 'type'] })).on('data', (row) => {
+      const name = parseString(row.name);
+      const type = parseString(row.type);
+       items.push({
+          name: name,
+          type: type
+        });
+    }).on('end', async () => {
+      try {
+        await Item.bulkCreate(items);
+        console.log('[ + ] Items insertados correctamente en PostgreSQL.');
+        resolve();
+      } catch (error) {
+        console.error('[ - ] Error al insertar items:', error);
+        reject(error);
+      }
+    }).on('error', (err) => {
+      console.error('[ - ] Error al leer el archivo CSV:', err);
+      reject(err);
+    });
+  });
+}
+
+
+module.exports = { importUsers, importLevels, importAchievements, importUserAch, importItems };
