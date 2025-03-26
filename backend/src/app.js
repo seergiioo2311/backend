@@ -70,4 +70,7 @@ app.use("/achievements", achievementRoutes);
 const itemRoutes = require("./routes/itemRoutes");
 app.use("/items", itemRoutes);
 
+const messagesRoutes = require("./routes/messagesRoutes");
+app.use("/messages", messagesRoutes);
+
 module.exports = app;
