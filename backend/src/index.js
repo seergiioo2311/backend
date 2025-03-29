@@ -26,7 +26,7 @@ const sync_database = async () => {
 
     await insertUsers(); // Ejecutar el script para insertar usuarios
     await insertRequests();
-    //await insertFriends(); // Descomentar para ver los amigos en vez de las solicitudes
+    await insertFriends(); // Descomentar para ver los amigos en vez de las solicitudes
     
     //Insertamos los datos en la base de datos
     await importLevels();
@@ -76,6 +76,9 @@ app.use("/achievements", achievementRoutes);
 
 const itemRoutes = require("./routes/itemRoutes");
 app.use("/items", itemRoutes);
+
+const messagesRoutes = require("./routes/messagesRoutes");
+app.use("/messages", messagesRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {
