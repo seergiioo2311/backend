@@ -71,4 +71,7 @@ app.use("/items", itemRoutes);
 const messagesRoutes = require("./routes/messagesRoutes");
 app.use("/messages", messagesRoutes);
 
+const privateGameRoutes = require("./routes/privateGames");
+app.use("/private", privateGameRoutes);
+
 module.exports = app;

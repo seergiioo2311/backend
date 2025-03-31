@@ -80,6 +80,9 @@ app.use("/items", itemRoutes);
 const messagesRoutes = require("./routes/messagesRoutes");
 app.use("/messages", messagesRoutes);
 
+const privateGameRoutes = require("./routes/privateRoutes");
+app.use("/private", privateGameRoutes);
+
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
