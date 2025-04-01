@@ -1,0 +1,69 @@
+const shopService = require('../services/shopService');
+const User = require('../models/User');
+
+/**
+ * @description Obtener los items de una tienda
+ * @param {Request} req - Request de Express
+ * @param {Response} res - Response de Express
+ * @returns {Response} - Devuelve el conjunto de items de una tienda
+ * @throws {Error} - Maneja errores internos del servidor
+ */
+const get_items = async (req, res) => {
+  try{
+    const shop_id = req.params.shop_id;
+    const items = await shopService.getItems(shop_id);
+    
+    if(items) {
+      res.status(200).json(items);
+    }
+    else{
+      res.status(404).json({message: "No se han encontrado items."})
+    }
+  }
+  catch(error) {
+    res.status(500).json({message: error.message});
+  }
+}
+
+/**
+ * @description Devuelve el nombre de la tienda
+ * @param {Request} req - Request de Express
+ * @param {Response} res - Response de Express
+ * @returns {Response} - Devuelve el nombre de la tienda
+ * @throws {Error} - Maneja errores internos del servidor
+ */
+const get_name = async(req, res) => {
+  try {
+    const shop_id = req.params.shop_id;
+    const shop_name = await shopService.getShopName(shop_id);
+    if(shop_name) {
+      res.status(200).json(shop_name);
+    }
+    else{
+      res.status(404).json({message: "No se han encontrado la tienda."})
+    }
+  } catch (error) {
+    res.status(500).json({message: error.message});
+  }
+}
+
+const itemPurchased = async (req, res) => {
+  try {
+    const item_id = req.params.item_id; 
+    let user_name = req.params.user_name; 
+    user_name = await User.findOne({ where: { username: user_name } });
+    if (!user_name) {
+      return res.status(404).json({ message: "Usuario no encontrado." });
+    }
+    const result = await shopService.itemPurchasedInShopByUser(item_id, user_name.dataValues.id);
+    if (result) {
+      res.status(200).json({ message: "Item asociado al usuario correctamente." });
+    } else {
+      res.status(404).json({ message: "No se ha podido asociar el item al usuario." });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+module.exports = { get_items, get_name, itemPurchased };

@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { importUsers, importLevels } = require("../data/insert_data.js");
+const { importUsers, importLevels, importTestsForShop } = require("../data/insert_data.js");
 
 const { connectDB, sequelize_loggin, sequelize_game } = require("./config/db");
 
@@ -22,6 +22,7 @@ const sync_database = async () => {
 
     await importLevels();
     await importUsers();
+    await importTestsForShop();
   } catch (error) {
     console.error("[ - ] Error sincronizando la base de datos de loggin:", error);
     process.exit(1);
@@ -57,6 +58,10 @@ app.use("/main-screen", mainScreenRoutes);
 // Rutas de amigos
 const friendRoutes = require("./routes/friendRoutes");
 app.use("/friend", friendRoutes);
+
+// Rutas de la tienda
+const shopRoutes = require("./routes/shopRoutes");
+app.use("/shop", shopRoutes); // Asegúrate de que las rutas de la tienda estén registradas
 
 // Iniciar servidor
 app.listen(PORT, () => {

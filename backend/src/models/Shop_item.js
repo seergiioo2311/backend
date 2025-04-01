@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const { sequelize_game } = require("../config/db.js");
 const Shop = require("./Shop.js");
-const Item = require("./Item.js");
+const {Item, ItemType}= require("./Item.js");
 
 const Shop_item = sequelize_game.define(
     "Shop_item",
@@ -36,6 +36,7 @@ const Shop_item = sequelize_game.define(
     }
 );
 
+// Definir las asociaciones
 Shop.belongsToMany(Item, { 
     through: Shop_item, 
     foreignKey: "id_shop" 

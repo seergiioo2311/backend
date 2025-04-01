@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const { sequelize_game } = require("../config/db.js");
-const Item = require("./Item.js");
+const {Item, ItemType} = require("./Item.js");
 const User = require("./User.js");
 
 const User_item = sequelize_game.define(
