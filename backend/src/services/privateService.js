@@ -12,6 +12,8 @@ const { Json } = require('sequelize/lib/utils');
  */
 async function createPrivateGame(passwd, maxPlayers) {
     try{
+        
+        //Obtenemos el endpoint donde se ejecutará la partida
         const response = await axios.get('http://localhost:3000/api/privateGames'); //? Este endpoint está aun por definir ya que lo proporciona el equipo de game_server
         const link = response.data.gameEndpoint; 
         
@@ -41,7 +43,7 @@ async function createPrivateGame(passwd, maxPlayers) {
 async function getPrivateGames() {
     try {
         const privateGames = await Priv.findAll({
-            attributes: ['id', 'link', 'maxPlayers', 'currentPlayers']
+            attributes: ['id', 'maxPlayers', 'currentPlayers']
         });
         return privateGames;
     } catch (error) {
