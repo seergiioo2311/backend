@@ -80,9 +80,14 @@ app.use("/items", itemRoutes);
 const messagesRoutes = require("./routes/messagesRoutes");
 app.use("/messages", messagesRoutes);
 
+
+const privateGameRoutes = require("./routes/privateRoutes");
+app.use("/private", privateGameRoutes);
+
 // Rutas de la tienda
 const shopRoutes = require("./routes/shopRoutes");
 app.use("/shop", shopRoutes); // Asegúrate de que las rutas de la tienda estén registradas
+
 
 // Iniciar servidor
 app.listen(PORT, () => {

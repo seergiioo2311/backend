@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const { sequelize_loggin, connectDB, sequelize_game } = require("../config/db.js");
-const Game = requiere("./Game.js");
+const  { Game } = require("./Game.js");
 
 const Private = sequelize_game.define(
     "Private", 
@@ -11,7 +11,7 @@ const Private = sequelize_game.define(
             allowNull: false,
             references: {
                 model: Game,
-                key: id
+                key: "id"
             },
             onDelete: "CASCADE",
             onUpdate: "CASCADE"
@@ -19,7 +19,19 @@ const Private = sequelize_game.define(
         passwd: {
             type: DataTypes.STRING,
             allowNull: false
-        }
+        },
+        link: {
+            type: DataTypes.STRING, //Enlace al endpoint de esta partida privada
+            allowNull: false
+        },
+        maxPlayers: {
+            type: DataTypes.INTEGER, //Número máximo de jugadores
+            allowNull: false
+        },
+        currentPlayers: {
+            type: DataTypes.INTEGER, //Número de jugadores actuales
+            allowNull: false
+        },
     }, 
     {
         timestamps: true
