@@ -2,14 +2,14 @@ const stripe = require('../config/stripe');
 const { sequelize_loggin } = require('../config/db');
 
 /**
- * Procesa un pago con Stripe.
- * 
+ * @description Procesa un pago con Stripe.
  * @param {Object} req - Objeto de solicitud de Express.
  * @param {Object} res - Objeto de respuesta de Express.
+ * @returns {Promise<void>} - Promesa sin valor.
+ * @throws {Error} - Error en caso de que falten parámetros o haya un error en el pago.
  */
 const processPayment = async (req, res) => {
     try {
-        console.log(stripe.paymentIntents); // Debe imprimir un objeto, NO "undefined"
         const { amount, currency, paymentMethodId } = req.body;
 
         if (!amount || !currency || !paymentMethodId) {
@@ -27,7 +27,6 @@ const processPayment = async (req, res) => {
                 allow_redirects: "never" // Deshabilita métodos de pago que requieren redirección
             }
         });
-
         res.json({ success: true, paymentIntent });
     } catch (error) {
         console.error('Error en el pago:', error);
@@ -36,9 +35,11 @@ const processPayment = async (req, res) => {
 };
 
 /**
- * 
+ * @description Añade una tarjeta de crédito a un cliente de Stripe.
  * @param {Object} req - Objeto de solicitud de Express.
  * @param {Object} res - Objeto de respuesta de Express. 
+ * @returns {Promise<void>} - Promesa sin valor.
+ * @throws {Error} - Error en caso de que falten parámetros o haya un error al añadir la tarjeta.
  */
 const add_card = async (req, res) => {
     try {

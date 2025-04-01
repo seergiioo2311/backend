@@ -1,8 +1,12 @@
 const express = require("express");
 const cors = require("cors");
-const { importUsers, importLevels, importTestsForShop } = require("../data/insert_data.js");
+const { importUsers, importLevels, importTestsForShop, importAchievements, importUserAch, importItems } = require("../data/insert_data.js");
 
 const { connectDB, sequelize_loggin, sequelize_game } = require("./config/db");
+
+const { insertUsers } = require("../data/insert_users.js");
+const { insertRequests } = require("../data/insert_requests.js");
+const { insertFriends } = require("../data/insert_friends.js");
 
 require("dotenv").config();
 
@@ -20,9 +24,17 @@ const sync_database = async () => {
     await sequelize_game.sync({ force: true });
     console.log("[ + ] Base de datos del juego sincronizada correctamente");
 
+    await insertUsers(); // Ejecutar el script para insertar usuarios
+    await insertRequests();
+    await insertFriends(); // Descomentar para ver los amigos en vez de las solicitudes
+    
+    //Insertamos los datos en la base de datos
     await importLevels();
     await importUsers();
     await importTestsForShop();
+    await importAchievements();
+    await importUserAch();
+    await importItems();
   } catch (error) {
     console.error("[ - ] Error sincronizando la base de datos de loggin:", error);
     process.exit(1);
@@ -57,7 +69,16 @@ app.use("/main-screen", mainScreenRoutes);
 
 // Rutas de amigos
 const friendRoutes = require("./routes/friendRoutes");
-app.use("/friend", friendRoutes);
+app.use("/friends", friendRoutes);
+
+const achievementRoutes = require("./routes/achievementsRoutes");
+app.use("/achievements", achievementRoutes);
+
+const itemRoutes = require("./routes/itemRoutes");
+app.use("/items", itemRoutes);
+
+const messagesRoutes = require("./routes/messagesRoutes");
+app.use("/messages", messagesRoutes);
 
 // Rutas de la tienda
 const shopRoutes = require("./routes/shopRoutes");
