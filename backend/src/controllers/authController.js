@@ -8,6 +8,7 @@ const { Op } = require('sequelize');
 const User = require('../models/User.js');
 const { v4: uuidv4 } = require('uuid'); 
 const User_Achievement = require('../models/User_achievement.js');
+const UserItem = require('../models/User_item');
 const Achievement = require('../models/Achievement.js');
 
 /**
@@ -114,6 +115,7 @@ const sign_up = async (req, res) => {
             
             const userGame = await User.create({id, username, experience: 0}); //Creamos un usuario en la tabla de usuarios del juego
             const userLoggin = await Loggin.create({username, email, password}); //Si el usuario no existe, lo creamos en la base de datos
+            await UserItem.create({ id_user: id, id_item: 1 }); // Asignamos el ítem 1 al usuario recién creado
             return res.status(201).json({message: 'Usuario creado con éxito', user:{username: userGame.username}}); //Retornamos un mensaje de éxito;
         }
     }

@@ -243,7 +243,12 @@ async function importItems() {
         });
     }).on('end', async () => {
       try {
-        await Item.bulkCreate(items);
+        const insertedItems = await Item.bulkCreate(items);
+          
+        // Aquí estamos accediendo a los ids asignados
+        insertedItems.forEach(item => {
+          console.log(`Item insertado: ${item.name} con ID: ${item.id}`);
+        });
         console.log('[ + ] Items insertados correctamente en PostgreSQL.');
         resolve();
       } catch (error) {

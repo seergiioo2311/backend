@@ -24,6 +24,7 @@ const sync_database = async () => {
     await sequelize_game.sync({ force: true });
     console.log("[ + ] Base de datos del juego sincronizada correctamente");
 
+    await importItems();
     await insertUsers(); // Ejecutar el script para insertar usuarios
     await insertRequests();
     await insertFriends(); // Descomentar para ver los amigos en vez de las solicitudes
@@ -33,7 +34,7 @@ const sync_database = async () => {
     await importUsers();
     await importAchievements();
     await importUserAch();
-    await importItems();
+    
 
   } catch (error) {
     console.error("[ - ] Error sincronizando la base de datos de loggin:", error);
