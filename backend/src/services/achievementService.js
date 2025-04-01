@@ -103,9 +103,41 @@ async function getUnachievedAchievements(userId) {
   }
 }
 
+/**
+* @description Desbloquea un logro de un usuario
+* @param {number} userId - El id del usuario
+* @param {number} achievementId - El id del logro
+* @returns {Json} - Un objeto con el logro desbloqueado
+* @throws {Error} - Maneja errores internos del servidor
+*/
+async function unlockAchievement(userId, achievementId) {
+  try {
+    // Verificar si el logro ya está desbloqueado
+    const existingAchievement = await userArch.findOne({
+      where: { id_user: userId, id_achievement: achievementId, achieved: true }
+    });
+
+    if (existingAchievement) {
+      throw new Error('Achievement already unlocked');
+    }
+
+    // Crear nuevo registro de logro desbloqueado
+    const newAchievement = await userArch.update({
+        achieved: true
+        }, {
+        where: { id_user: userId, id_achievement: achievementId }
+    });
+
+    return {message: 'Achievement unlocked', achievement: newAchievement};
+  } catch (error) {
+    throw new Error(`Error desbloqueando logro (Usuario ${userId}, Logro ${achievementId}): ${error.message}`);
+  }
+}
+
 //Exportamos las funciones para poder usarlas en el controller
 module.exports = {
   getAchievements,
-  getUnachievedAchievements
+  getUnachievedAchievements,
+  unlockAchievement
 };
 

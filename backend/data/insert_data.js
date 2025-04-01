@@ -3,9 +3,12 @@ const path = require('path');
 const csv = require('csv-parser');
 const Level = require("../src/models/Level.js");
 const User = require("../src/models/User.js");
+const Shop = require("../src/models/Shop.js");
+const { Item, ItemType } = require("../src/models/Item.js");
+const ShopItem = require("../src/models/Shop_item.js"); 
+const User_item = require("../src/models/User_item.js");
 const Achievement = require("../src/models/Achievement.js");
 const User_achievement = require("../src/models/User_achievement.js");
-const { Item } = require("../src/models/Item.js");
 
 /**
  * Función para validar y convertir UUID.
@@ -135,6 +138,19 @@ async function importLevels() {
     });
 }
 
+async function importTestsForShop() {
+  try {
+    await Shop.create({ name: "Tienda de skins" });
+    await Item.create({ name: "Skin galaxy", type: "Skin" });
+    await Item.create({ name: "Skin fire", type: "Skin" });
+    await ShopItem.create({ id_shop: 1, id_item: 1, item_price: 100 });
+    await ShopItem.create({ id_shop: 1, id_item: 2, item_price: 200 });
+    console.log('[ + ] Datos de prueba insertados correctamente en PostgreSQL.');
+  } catch (error) {
+    console.error('[ - ] Error al insertar tests:', error);
+  }
+}
+
 /**
   * @description Esta función es encargada de introducir los logros en la tabla Achievements.
   * @returns {Promise<void>}
@@ -262,5 +278,4 @@ async function importItems() {
   });
 }
 
-
-module.exports = { importUsers, importLevels, importAchievements, importUserAch, importItems };
+module.exports = { importUsers, importLevels, importTestsForShop, importAchievements, importUserAch, importItems };

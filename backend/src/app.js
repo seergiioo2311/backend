@@ -4,8 +4,6 @@ const { importUsers, importLevels, importAchievements, importUserAch, importItem
 
 const { connectDB, sequelize_loggin, sequelize_game } = require("./config/db");
 
-const { insertUsers } = require("../data/insertUsers.js")
-
 require("dotenv").config();
 
 const app = express();
@@ -73,5 +71,8 @@ app.use("/items", itemRoutes);
 
 const messagesRoutes = require("./routes/messagesRoutes");
 app.use("/messages", messagesRoutes);
+
+const privateGameRoutes = require("./routes/privateRoutes");
+app.use("/private", privateGameRoutes);
 
 module.exports = app;
