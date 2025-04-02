@@ -1,6 +1,12 @@
 const { DataTypes } = require("sequelize");
 const { sequelize_loggin, connectDB, sequelize_game } = require("../config/db.js");
 
+const ACHIEVEMENT_TYPE = {
+    HOURSPLAYED: "hoursPlayed",
+    ELIMINATEDPLAYERS: "playersEliminated",
+    MAXSCORE: "maxScore",
+};
+
 const Achievement = sequelize_game.define(
     "Achievement",
     {
@@ -12,12 +18,16 @@ const Achievement = sequelize_game.define(
         name: {
             type: DataTypes.STRING,
             allowNull: false
-        }, 
-        description: {
-            type: DataTypes.STRING,
-            allowNull: true
-        }, 
+        },
+        type: {
+            type: DataTypes.ENUM(...Object.values(ACHIEVEMENT_TYPE)),
+            allowNull: false
+        },
         experience_otorgued: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        objective_value: {
             type: DataTypes.INTEGER,
             allowNull: false
         }
@@ -27,4 +37,4 @@ const Achievement = sequelize_game.define(
     }
 );
 
-module.exports = Achievement;
+module.exports = { Achievement, ACHIEVEMENT_TYPE };

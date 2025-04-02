@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const { sequelize_game } = require("../config/db.js");
-const User = require("./User.js");
-const Achievement = require("./Achievement.js");
+const User  = require("./User.js");
+const { Achievement, ACHIEVEMENT_TYPE } = require("./Achievement.js");
 
 const User_achievement = sequelize_game.define(
     "User_achievement",
@@ -26,9 +26,18 @@ const User_achievement = sequelize_game.define(
             onDelete: "CASCADE",
             onUpdate: "CASCADE"
         }, 
-        achieved: {
+        achieved: { // Para saber si el usuario ya ha reclamado la recompensa del logro
             type: DataTypes.BOOLEAN,
             allowNull: false
+        },
+        completed: { // Para saber si el usuario ya ha conseguido el logro
+            type: DataTypes.BOOLEAN,
+            allowNull: false
+        },
+        current_value: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
         }
     }, 
     {

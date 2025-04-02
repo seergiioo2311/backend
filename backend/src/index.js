@@ -25,6 +25,7 @@ const sync_database = async () => {
     console.log("[ + ] Base de datos del juego sincronizada correctamente");
 
     await importItems();
+    await importAchievements();
     await insertUsers(); // Ejecutar el script para insertar usuarios
     await insertRequests();
     await insertFriends(); // Descomentar para ver los amigos en vez de las solicitudes
@@ -33,11 +34,8 @@ const sync_database = async () => {
     await importLevels();
     await importUsers();
     await importTestsForShop();
-    await importAchievements();
-    await importUserAch();
+    //await importUserAch();
     
-
-    await importItems();
   } catch (error) {
     console.error("[ - ] Error sincronizando la base de datos de loggin:", error);
     process.exit(1);

@@ -9,37 +9,20 @@ const achService = require('../services/achievementService');
  */
 const get_achievements = async (req, res) => {
   try {
-    const user = req.params.id;
-    const achievements = await achService.getAchievements(user);
+    const user_id = req.params.id;
+    const result1 = await achService.checkUser(user_id);
+    //Si el usuario no existe en la base de datos
+    if (!result1) {
+      console.log("Usuario no encontrado");
+      throw new Error("User not found");
+    }
+    const achievements = await achService.getAchievements(user_id);
 
     //Si el usuario no existe en la base de datos
     if (!achievements) {
-      throw new Error("User not found");
+      throw new Error("Error al obtener los logros");
     }
 
-    res.status(200).json(achievements);
-  }
-  catch(error) {
-    res.status(500).json({message: error.message});
-  }
-}
-
-/**
- * @description Obtiene los logros no obtenidos de un usuario
- * @param {Request} req - Request de Express
- * @param {Response} res - Response de Express
- * @returns {Response} - Devuelve los logros no obtenidos del usuario
- * @throws {Error} - Maneja errores internos del servidor
- */
-const get_unachieved_achievements = async (req, res) => {
-  try {
-    const user = req.params.id;
-    const achievements = await achService.getUnachievedAchievements(user);
-
-    //Si el usuario no existe en la base de datos
-    if (!achievements) {
-      throw new Error("User not found");
-    }
     res.status(200).json(achievements);
   }
   catch(error) {
@@ -56,14 +39,22 @@ const get_unachieved_achievements = async (req, res) => {
 */
 const unlock_achievement = async (req, res) => {
     try {
-        const user = req.body.usera_id;
-        const achievement = req.body.achievement_id;
+        const user_id = req.body.user_id;
+
+        const result1 = await achService.checkUser(user_id);
+        //Si el usuario no existe en la base de datos
+        if (!result1) {
+          console.log("Usuario no encontrado");
+          throw new Error("User not found");
+        }
+
+        const achievement_id = req.body.achievement_id;
     
-        const result = await achService.unlockAchievement(user, achievement);
+        const result = await achService.unlockAchievement(user_id, achievement_id);
     
         //Si el usuario no existe en la base de datos
         if (!result) {
-        throw new Error("User not found");
+        throw new Error("Error al reclamar el logro");
         }
     
         res.status(200).json(result);
@@ -73,9 +64,43 @@ const unlock_achievement = async (req, res) => {
     }
 }
 
+/**
+* @description Actualiza los logros de un tipo
+* @param {Request} req - Request de Express
+* @param {Response} res - Response de Express
+* @returns {Response} - Devuelve el logro desbloqueado
+* @throws {Error} - Maneja errores internos del servidor
+*/
+const update_achievement = async (req, res) => {
+  try {
+      const user_id = req.body.user_id;
+      const type = req.body.achievement_type;
+      const quantity = req.body.quantity;
+
+      const result1 = await achService.checkUser(user_id);
+      //Si el usuario no existe en la base de datos
+      if (!result1) {
+        console.log("Usuario no encontrado");
+        throw new Error("User not found");
+      }
+  
+      const result = await achService.updateAchievement(user_id, type, quantity);
+  
+      //Si el usuario no existe en la base de datos
+      if (!result) {
+      throw new Error("Error al actualizar los logros");
+      }
+  
+      res.status(200).json(result);
+  }
+  catch(error) {
+      res.status(500).json({message: error.message});
+  }
+}
+
 
 module.exports = {
   get_achievements,
-  get_unachieved_achievements,
-  unlock_achievement
+  unlock_achievement,
+  update_achievement
 };

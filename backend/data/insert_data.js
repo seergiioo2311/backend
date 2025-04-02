@@ -7,7 +7,7 @@ const Shop = require("../src/models/Shop.js");
 const { Item, ItemType } = require("../src/models/Item.js");
 const ShopItem = require("../src/models/Shop_item.js"); 
 const User_item = require("../src/models/User_item.js");
-const Achievement = require("../src/models/Achievement.js");
+const { Achievement, AchievementType } = require("../src/models/Achievement.js");
 const User_achievement = require("../src/models/User_achievement.js");
 
 /**
@@ -141,8 +141,8 @@ async function importLevels() {
 async function importTestsForShop() {
   try {
     await Shop.create({ name: "Tienda de skins" });
-    await Item.create({ name: "Skin galaxy", type: "Skin" });
-    await Item.create({ name: "Skin fire", type: "Skin" });
+    await Item.create({ name: "Skin galaxy", type: "skin" });
+    await Item.create({ name: "Skin fire", type: "skin" });
     await ShopItem.create({ id_shop: 1, id_item: 1, item_price: 100 });
     await ShopItem.create({ id_shop: 1, id_item: 2, item_price: 200 });
     console.log('[ + ] Datos de prueba insertados correctamente en PostgreSQL.');
@@ -157,21 +157,23 @@ async function importTestsForShop() {
   * @throws {Error} - Si ocurre un error al insertar los logros en la base de datos
   */
 async function importAchievements() {
-  const filePath = path.resolve(__dirname, 'achievements.csv'); // Corregido typo en el nombre del archivo
+  const filePath = path.resolve(__dirname, 'logros.csv'); // Ruta del archivo CSV
   const achievements = [];
 
   return new Promise((resolve, reject) => {
     fs.createReadStream(filePath)
-      .pipe(csv({ separator: ',', headers: ['name', 'description', 'experience_otorgued'] })) // Headers actualizados
+      .pipe(csv({ separator: ',', headers: ['name', 'type', 'experience_otorgued', 'objective_value'] })) // Usando headers apropiados
       .on('data', (row) => {
         // Validación y conversión de tipos
         const experience = parseInt(row.experience_otorgued, 10);
-        
-        if (!isNaN(experience) && row.name && row.description) {
+        const objective_value = parseInt(row.objective_value, 10);
+
+        if (!isNaN(experience) && !isNaN(objective_value) && row.name && row.type) {
           achievements.push({
             name: row.name.trim(),
-            description: row.description.trim(),
-            experience_otorgued: experience
+            type: row.type.trim(),
+            experience_otorgued: experience,
+            objective_value: objective_value
           });
         }
       })
@@ -244,6 +246,7 @@ async function importUserAch() {
       });
   });
 }
+
 
 async function importItems() {
   const filePath = path.resolve(__dirname, 'items.csv');
