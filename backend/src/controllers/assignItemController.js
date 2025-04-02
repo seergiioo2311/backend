@@ -9,7 +9,19 @@ const storeService = require('../services/storeService');
  */
 const assignItem = async (req, res) => {
   try {
-    const { user_id, item_id } = req.body;
+    const user_id = req.body.userId;
+    const item_id = req.body.itemId;
+
+    const result1 = await storeService.checkUser(user_id);
+    const result2 = await storeService.checkItem(item_id);
+
+    //Si el usuario no existe en la base de datos
+    if (!result1 || !result2) {
+      console.log("Usuario o items no encontrados");
+      throw new Error("User not found");
+    }
+
+
     const userItem = await storeService.assignItem(user_id, item_id);
     if (userItem) {
       res.status(200).json({ message: "Item asignado correctamente" });
@@ -32,7 +44,14 @@ const assignItem = async (req, res) => {
  */
 const getAllItems = async (req, res) => {
   try {
-    const { user_id } = req.body;
+    const user_id  = req.params.id;
+    const result = await storeService.checkUser(user_id);
+
+    //Si el usuario no existe en la base de datos
+    if (!result) {
+      console.log("Usuario no encontrado");
+      throw new Error("User not found");
+    }
     const items = await storeService.getAllItems(user_id);
     res.status(200).json({ items });
   } catch (error) {

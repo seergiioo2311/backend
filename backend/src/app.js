@@ -17,11 +17,12 @@ const sync_database = async () => {
     
     await sequelize_game.sync({ force: true });
     
+    await importItems();
     await importUsers();
     await importLevels();
     await importAchievements();
     await importUserAch();
-    await importItems();
+    
 
   } catch (error) {
     console.error("[ - ] Error sincronizando la base de datos de loggin:", error);

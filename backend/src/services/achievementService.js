@@ -1,6 +1,7 @@
-const ach = require('../models/Achievement.js');
+const {Achievement, AchievementType} = require('../models/Achievement.js');
 const userArch = require('../models/User_achievement.js');
 const { Op } = require('sequelize');
+const User = require("../models/User.js");
 
 /** 
  * @description Obtiene los logros de un usuario
@@ -9,99 +10,69 @@ const { Op } = require('sequelize');
  */
 async function getAchievements(userId) {
   try {
+    console.log(`🔍 Iniciando obtención de logros para usuario ID: ${userId}`);
 
-    // Consulta de logros obtenidos por el usuario
     const userAchievements = await userArch.findAll({
-      where: { id_user: userId, achieved: true },
-      attributes: ['id_achievement'],
-      raw: true // ← Resultados como objetos planos
+      where: { id_user: userId },
+      attributes: ['id_achievement', 'achieved', 'completed', 'current_value'],
+      raw: true
     });
+    console.log(`✅ Logros encontrados en User_achievement:`, userAchievements);
 
-    // Si no hay logros, retornar array vacío inmediatamente
     if (userAchievements.length === 0) {
+      console.log('⚠️ No se encontraron logros para el usuario. Retornando []');
       return [];
     }
 
-    // Extraer IDs y asegurar que sean únicos
-    const achievementIds = [...new Set(
-      userAchievements.map(ua => ua.id_achievement)
-    )];
+    const achievementIds = [...new Set(userAchievements.map(ua => ua.id_achievement))];
+    console.log(`🆔 IDs únicos de logros encontrados:`, achievementIds);
 
-    // Obtener detalles de los logros
-    const achievements = await ach.findAll({
+    const achievements = await Achievement.findAll({
       where: { id: achievementIds },
-      raw: true // ← Resultados limpios
+      raw: true
+    });
+    console.log(`📄 Detalles de logros obtenidos desde la tabla 'ach':`, achievements);
+
+    const achievementsWithDetails = achievements.map(achievement => {
+      const userAchievement = userAchievements.find(
+        ua => ua.id_achievement === achievement.id
+      );
+      return {
+        ...achievement,
+        achieved: userAchievement.achieved,
+        completed: userAchievement.completed,
+        current_value: userAchievement.current_value
+      };
     });
 
-    return {achievements: achievements};
+    console.log(`🎯 Logros combinados con detalles del usuario:`, achievementsWithDetails);
 
+    const notClaimedCompleted = achievementsWithDetails
+      .filter(l => l.completed && !l.achieved)
+      .sort((a, b) => a.objective_value - b.objective_value);
+
+    const inProgress = achievementsWithDetails
+      .filter(l => !l.completed)
+      .sort((a, b) => a.objective_value - b.objective_value);
+
+    const claimed = achievementsWithDetails
+      .filter(l => l.completed && l.achieved)
+      .sort((a, b) => a.objective_value - b.objective_value);
+
+    const sortedAchievements = [
+      ...notClaimedCompleted,
+      ...inProgress,
+      ...claimed
+    ];
+
+    return { achievements: sortedAchievements };
 
   } catch (error) {
-    // Mejorar mensaje de error para debugging
+    console.error(`❌ Error obteniendo logros (Usuario ${userId}): ${error.message}`);
     throw new Error(`Error obteniendo logros (Usuario ${userId}): ${error.message}`);
   }
 }
 
-/** 
- * @description devuelve el listado de logros no obtenidos por el usuario 
- * @param {number} userId - El id del usuario
- * @returns {Json} - Un objeto con los logros no obtenidos del usuario y el porcentaje de logros obtenidos
- */
-async function getUnachievedAchievements(userId) {
-  try {
-    
-    // Obtener datos en paralelo
-    const [unachieved, obtainedCount, totalRows] = await Promise.all([
-      // Logros no obtenidos
-      userArch.findAll({
-        where: { id_user: userId, achieved: false },
-        attributes: ['id_achievement'],
-        raw: true
-      }),
-      
-      // Conteo de logros obtenidos
-      userArch.count({ where: { id_user: userId, achieved: true } }),
-      
-      // Total de logros en el sistema
-      ach.count()
-    ]);
-
-    // Si no hay logros no obtenidos
-    if (unachieved.length === 0) {
-      return {
-        percentage: totalRows === 0 ? 0 : (obtainedCount / totalRows) * 100,
-        achievements: []
-      };
-    }
-
-    const achievementIds = unachieved.map(ua => ua.id_achievement);
-
-    // Validar si hay IDs antes de consultar
-    if (achievementIds.length === 0) {
-      return [];
-    }
-
-    const achievements = await ach.findAll({
-      where: {
-        id: {
-          [Op.in]: achievementIds
-        }
-      },
-      attributes: ['id', 'name', 'description'], // Nombres en inglés según modelo
-      raw: true
-    });
-
-    
-    
-    return {
-      percentage: totalRows === 0 ? 0 : (obtainedCount / totalRows) * 100,
-      achievements: achievements
-    };
-    
-  } catch (error) {
-    throw new Error(`Error en logros no obtenidos (Usuario ${userId}): ${error.message}`);
-  }
-}
 
 /**
 * @description Desbloquea un logro de un usuario
@@ -134,10 +105,72 @@ async function unlockAchievement(userId, achievementId) {
   }
 }
 
+/**
+* @description Actualiza los logros de un tipo
+* @param {number} userId - El id del usuario
+* @param {achType} achivementType - El tipo del logro
+* @param {number} quantity - Cantidad del logro a sumar
+* @throws {Error} - Maneja errores internos del servidor
+*/
+async function updateAchievement(userId, achivementType, quantity) {
+  try {
+    // Buscar todos los logros del tipo dado
+    const achievements = await Achievement.findAll({
+      where: { type: achivementType }
+    });
+
+    for (const achievement of achievements) {
+      // Verificar si el usuario ya tiene este logro
+      let userAchievement = await userArch.findOne({
+        where: {
+          id_user: userId,
+          id_achievement: achievement.id
+        }
+      });
+
+      if (userAchievement) {
+        console.log("logro encontrado")
+        if (achivementType == "maxScore") {
+          userAchievement.current_value =  Math.max(userAchievement.current_value, quantity);
+          await userAchievement.save();
+        } else {
+          // Si existe, sumar el progreso
+          userAchievement.current_value += quantity;
+          await userAchievement.save();
+        }
+      }
+    }
+    return { message: "Logro actualizado correctamente." };
+  } catch (error) {
+    console.error("Error updating achievement:", error);
+    throw new Error("Internal server error while updating achievements.");
+  }
+}
+
+/**
+ * @description Comprueba si un usuario esta registrado en la base de datos
+ * @param {number} userId - El id del usuario
+ * @returns {Json} - Un objeto con un mensaje de éxito o error
+ * @throws {Error} - Si no se encuentra
+ */ 
+async function checkUser(userId) {
+  const user = await User.findOne({
+    where: {id: userId}
+  });
+
+  if(user) {
+    return {message: "Usuario encontrado"};
+  }
+  else {
+    return {message: "Usuario no encontrado"};
+  }
+}
+
 //Exportamos las funciones para poder usarlas en el controller
 module.exports = {
   getAchievements,
-  getUnachievedAchievements,
-  unlockAchievement
+  unlockAchievement,
+  updateAchievement,
+  checkUser
 };
 

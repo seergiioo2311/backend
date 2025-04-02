@@ -12,10 +12,6 @@ const { validate, version } = require('uuid');
   */
 async function assignItem(userId, itemId) {
     try {
-        if (!validate(userId) || version(userId) !== 4) {
-            throw new Error('ID de usuario inválido');
-        }
-
         const user = await User.findByPk(userId);
         const item = await Item.findByPk(itemId);
         
@@ -37,14 +33,36 @@ async function assignItem(userId, itemId) {
   */ 
 async function getAllItems(user_id) {
     try {
+        /*
         if (!validate(user_id) || version(user_id) !== 4) {
+            console.log("ID de usuario inválido");
             throw new Error('ID de usuario inválido');
         }
+        */
         const user = await User.findByPk(user_id);
         if (!user) {
+            console.log("Usuario no encontrado");
             throw new Error('Usuario no encontrado');
         }
-        const items = await UserItem.findAll({where: { id_user: user_id }});
+        console.log("Buscando los items del usuario");
+        const userItems = await UserItem.findAll({where: { id_user: user_id }});
+        
+        // Si no hay items asignados
+        if (userItems.length === 0) {
+            console.log("No hay items asignados al usuario");
+            return [];  // Retornar un array vacío si no tiene items
+        }
+
+        // Obtener los item_ids de los registros de UserItem
+        const itemIds = userItems.map(userItem => userItem.id_item);
+
+        // Buscar todos los items usando los item_ids
+        const items = await Item.findAll({
+            where: {
+                id: itemIds
+            }
+        });
+
         return items;
     }
     catch (error) {
@@ -52,4 +70,42 @@ async function getAllItems(user_id) {
     }
 }
 
-module.exports = { assignItem, getAllItems };
+/**
+ * @description Comprueba si un usuario esta registrado en la base de datos
+ * @param {number} userId - El id del usuario
+ * @returns {Json} - Un objeto con un mensaje de éxito o error
+ * @throws {Error} - Si no se encuentra
+ */ 
+async function checkUser(userId) {
+    const user = await User.findOne({
+      where: {id: userId}
+    });
+  
+    if(user) {
+      return {message: "Usuario encontrado"};
+    }
+    else {
+      return {message: "Usuario no encontrado"};
+    }
+}
+
+/**
+ * @description Comprueba si un item esta registrado en la base de datos
+ * @param {number} userId - El id del item
+ * @returns {Json} - Un objeto con un mensaje de éxito o error
+ * @throws {Error} - Si no se encuentra
+ */ 
+async function checkItem(itemId) {
+    const item = await Item.findOne({
+      where: {id: itemId}
+    });
+  
+    if(item) {
+      return {message: "Item encontrado"};
+    }
+    else {
+      return {message: "Item no encontrado"};
+    }
+}
+
+module.exports = { assignItem, getAllItems, checkUser, checkItem };
