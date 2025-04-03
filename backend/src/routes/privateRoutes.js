@@ -7,7 +7,7 @@ const router = express.Router();
 router.post('/create', createPrivateGame);
 router.get('/', getPrivateGame);
 router.post('/join', getPrivateEndPoint);
-router.delete('/delete', deletePrivateGame);
+router.delete('/delete/:id', deletePrivateGame);
 router.get('/players/:gameId', getPlayers);
 
 module.exports = router;

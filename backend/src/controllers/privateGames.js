@@ -17,7 +17,7 @@ const createPrivateGame = async (req, res) => {
         const { passwd, maxPlayers } = req.body;
 
         const newPrivateGame = await PrivateService.createPrivateGame(passwd, maxPlayers);
-        res.status(201).json(newPrivateGame);
+        res.status(200).json(newPrivateGame);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -71,9 +71,13 @@ const getPrivateEndPoint = async (req, res) => {
  */
 const deletePrivateGame = async (req, res) => {
     try {
-        const { gameId } = req.params;
+        const { id } = req.params;
 
-        const deletedPrivateGame = await PrivateService.deletePrivateGame(gameId);
+        if (!id) {
+            return res.status(400).json({ message: "ID de partida privada no proporcionada" });
+        }
+
+        const deletedPrivateGame = await PrivateService.deletePrivateGame(id);
         if (deletedPrivateGame) {
             res.status(200).json({ message: "Partida privada eliminada correctamente" });
         } else {
