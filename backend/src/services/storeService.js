@@ -41,15 +41,12 @@ async function getAllItems(user_id) {
         */
         const user = await User.findByPk(user_id);
         if (!user) {
-            console.log("Usuario no encontrado");
             throw new Error('Usuario no encontrado');
         }
-        console.log("Buscando los items del usuario");
         const userItems = await UserItem.findAll({where: { id_user: user_id }});
         
         // Si no hay items asignados
         if (userItems.length === 0) {
-            console.log("No hay items asignados al usuario");
             return [];  // Retornar un array vacío si no tiene items
         }
 

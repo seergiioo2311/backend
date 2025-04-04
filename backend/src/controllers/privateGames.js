@@ -15,6 +15,10 @@ const PrivateService = require('../services/privateService');
 const createPrivateGame = async (req, res) => {
     try {
         const { passwd, maxPlayers } = req.body;
+        
+        if (!passwd || !maxPlayers) {
+            return res.status(500).json({ message: "Contraseña y número máximo de jugadores son obligatorios" });
+        }
 
         const newPrivateGame = await PrivateService.createPrivateGame(passwd, maxPlayers);
         res.status(200).json(newPrivateGame);
@@ -50,6 +54,9 @@ const getPrivateGame = async (req, res) => {
 const getPrivateEndPoint = async (req, res) => {
     try {
         const { gameId, passwd } = req.body;
+        if (!gameId || !passwd) {
+            return res.status(500).json({ message: "ID de partida privada y contraseña son obligatorios" });
+        }
 
         const privateGame = await PrivateService.joinPrivateGame(gameId, passwd);
         if (privateGame) {
@@ -97,6 +104,10 @@ const deletePrivateGame = async (req, res) => {
 const getPlayers = async (req, res) => {
     try {
         const { gameId } = req.params;
+
+        if(!gameId) {
+            return res.status(500).json({ message: "ID de partida privada no proporcionada" });
+        }
 
         const players = await PrivateService.getPlayers(gameId);
         if (players) {

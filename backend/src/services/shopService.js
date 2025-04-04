@@ -51,6 +51,6 @@ async function itemPurchasedInShopByUser (idItem, idUser) {
   } catch (error) {
     return {message: error.message}
   }
-  }
+}
 
 module.exports = { getItems, getShopName, itemPurchasedInShopByUser };

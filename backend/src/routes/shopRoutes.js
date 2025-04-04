@@ -4,8 +4,8 @@ const { get_items, get_name, itemPurchased } = require("../controllers/shopContr
 
 const router = express.Router();
 
-router.get('/shop/getItems/:shop_id', get_items);
-router.get('/shop/getName/:shop_id', get_name);
-router.post('/shop/purchased/:item_id/:user_name', itemPurchased);
+router.get('/getItems/:shop_id', get_items);
+router.get('/getName/:shop_id', get_name);
+router.post('/purchased', itemPurchased);
 
 module.exports = router;
