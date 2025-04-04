@@ -147,7 +147,7 @@ async function importShops() {
 
       const assignedItems = new Set();
       while (assignedItems.size < 4) {
-        const randomId = Math.floor(Math.random() * 10) + 2; // ID entre 1 y 10
+        const randomId = Math.floor(Math.random() * 10) + 2; // ID entre 2 y 10
         if (!assignedItems.has(randomId)) {
           assignedItems.add(randomId);
 
