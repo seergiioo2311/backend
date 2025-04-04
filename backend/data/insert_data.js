@@ -138,16 +138,36 @@ async function importLevels() {
     });
 }
 
-async function importTestsForShop() {
+async function importShops() {
   try {
-    await Shop.create({ name: "Tienda de skins" });
-    await Item.create({ name: "Skin galaxy", type: "skin" });
-    await Item.create({ name: "Skin fire", type: "skin" });
-    await ShopItem.create({ id_shop: 1, id_item: 1, item_price: 100 });
-    await ShopItem.create({ id_shop: 1, id_item: 2, item_price: 200 });
-    console.log('[ + ] Datos de prueba insertados correctamente en PostgreSQL.');
+    const shopNames = ["Tienda de skins1", "Tienda de skins2", "Tienda de skins3"];
+
+    for (const name of shopNames) {
+      const shop = await Shop.create({ name });
+
+      const assignedItems = new Set();
+      while (assignedItems.size < 4) {
+        const randomId = Math.floor(Math.random() * 10) + 2; // ID entre 2 y 10
+        if (!assignedItems.has(randomId)) {
+          assignedItems.add(randomId);
+
+          const item = await Item.findByPk(randomId);
+          if (item) {
+            await ShopItem.create({
+              id_shop: shop.id,
+              id_item: item.id,
+              item_price: item.price,
+            });
+          } else {
+            console.warn(`[ ! ] Item con ID ${randomId} no encontrado.`);
+          }
+        }
+      }
+    }
+
+    console.log('[ + ] Tiendas y items insertados correctamente.');
   } catch (error) {
-    console.error('[ - ] Error al insertar tests:', error);
+    console.error('[ - ] Error al insertar datos:', error);
   }
 }
 
@@ -253,12 +273,14 @@ async function importItems() {
   const items = [];
 
   return new Promise((resolve, reject) => {
-    fs.createReadStream(filePath).pipe(csv({ separator: ',', headers: ['name', 'type'] })).on('data', (row) => {
+    fs.createReadStream(filePath).pipe(csv({ separator: ',', headers: ['name', 'type', 'price'] })).on('data', (row) => {
       const name = parseString(row.name);
       const type = parseString(row.type);
+      const price = parseString(row.price);
        items.push({
           name: name,
-          type: type
+          type: type,
+          price: price
         });
     }).on('end', async () => {
       try {
@@ -281,4 +303,4 @@ async function importItems() {
   });
 }
 
-module.exports = { importUsers, importLevels, importTestsForShop, importAchievements, importUserAch, importItems };
+module.exports = { importUsers, importLevels, importShops, importAchievements, importUserAch, importItems };
