@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { importUsers, importLevels, importTestsForShop, importAchievements, importUserAch, importItems } = require("../data/insert_data.js");
+const { importUsers, importLevels, importShops, importAchievements, importUserAch, importItems } = require("../data/insert_data.js");
 
 const { connectDB, sequelize_loggin, sequelize_game } = require("./config/db");
 
@@ -33,7 +33,7 @@ const sync_database = async () => {
     //Insertamos los datos en la base de datos
     await importLevels();
     await importUsers();
-    await importTestsForShop();
+    await importShops();
     //await importUserAch();
     
   } catch (error) {

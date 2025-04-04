@@ -27,7 +27,7 @@ const Shop_item = sequelize_game.define(
             onUpdate: "CASCADE"
         },
         item_price: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.DOUBLE,
             allowNull: false
         }
     }, 

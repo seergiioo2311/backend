@@ -15,7 +15,7 @@ const { sequelize_game } = require("../config/db");
  */
 async function getItems(shopId) {
   try {
-    const [results, metadata] = await sequelize_game.query(
+    const results = await sequelize_game.query(
     `
     SELECT i.name AS name_item, i.type AS item_type, si.item_price as item_price
     FROM "Items" i
@@ -51,6 +51,6 @@ async function itemPurchasedInShopByUser (idItem, idUser) {
   } catch (error) {
     return {message: error.message}
   }
-  }
+}
 
 module.exports = { getItems, getShopName, itemPurchasedInShopByUser };
