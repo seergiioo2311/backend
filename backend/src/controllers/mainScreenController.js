@@ -131,4 +131,35 @@ const update_user = async(req, res) => {
   }
 }
 
-module.exports = { get_user, get_id, update_connection, get_unlocked_skins, update_user };
+/**
+ * @description Verifica la contraseña del usuario
+ * @param {Request} req - Request de Express
+ * @param {Response} res - Response de Express
+ * @returns {Response} - Devuelve un mensaje de éxito si la contraseña es la correcta y uno de error en caso de error
+ * @throws {Error} - Maneja errores internos del servidor
+ */
+const verify_password = async(req, res) => {
+  try {
+    const user_id = req.params.id;
+    const password = req.body.password;
+    const user = mainScreenService.getUsernameById(user_id);
+    
+    if(!user) {
+      res.status(404).json({message: "Usuario no encontrado"});
+    }
+
+    const result =  await mainScreenService.verifyPassword(user_id, password);
+    console.log(result);
+    if (result.message != "OK") {
+      console.log(result.message);
+      res.status(500).json({message: result.message});
+    } else {
+      res.status(200).json(result);
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({message: error.message});
+  }
+}
+
+module.exports = { get_user, get_id, update_connection, get_unlocked_skins, update_user, verify_password };

@@ -11,6 +11,9 @@ const { sequelize_loggin } = require('../config/db');
 const processPayment = async (req, res) => {
     try {
         const { amount, currency, paymentMethodId } = req.body;
+        console.log("Amount: ", amount);
+        console.log("Currency: ", currency);
+        console.log("Payment Method ID: ", paymentMethodId);
 
         if (!amount || !currency || !paymentMethodId) {
             return res.status(400).json({ error: 'Faltan parámetros requeridos' });
