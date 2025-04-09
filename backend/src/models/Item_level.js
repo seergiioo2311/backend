@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const { sequelize_loggin, connectDB, sequelize_game } = require("../config/db.js");
 const Level = require("./Level.js");
-const Item = require("./Item.js");
+const { Item, ITEM_TYPE} = require("./Item.js");
 
 const Item_level = sequelize_game.define(
     "Item_level",
@@ -27,6 +27,10 @@ const Item_level = sequelize_game.define(
             },
             onDelete: "CASCADE",
             onUpdate: "CASCADE"
+        },
+        season: {
+            type:DataTypes.INTEGER,
+            allowNull: false
         }
     }, 
     {
