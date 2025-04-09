@@ -9,6 +9,7 @@ const ShopItem = require("../src/models/Shop_item.js");
 const User_item = require("../src/models/User_item.js");
 const { Achievement, AchievementType } = require("../src/models/Achievement.js");
 const User_achievement = require("../src/models/User_achievement.js");
+const SeasonPass = require("../src/models/SeasonPass.js");
 
 /**
  * Función para validar y convertir UUID.
@@ -140,7 +141,7 @@ async function importLevels() {
 
 async function importShops() {
   try {
-    const shopNames = ["Tienda de skins1", "Tienda de skins2", "Tienda de skins3"];
+    const shopNames = Array.from({ length: 100 }, (_, i) => `Tienda de skins${i + 1}`); // Genera 100 nombres de tiendas
 
     for (const name of shopNames) {
       const shop = await Shop.create({ name });
@@ -165,7 +166,7 @@ async function importShops() {
       }
     }
 
-    console.log('[ + ] Tiendas y items insertados correctamente.');
+    console.log('[ + ] 100 tiendas y sus items insertados correctamente.');
   } catch (error) {
     console.error('[ - ] Error al insertar datos:', error);
   }
@@ -303,4 +304,18 @@ async function importItems() {
   });
 }
 
-module.exports = { importUsers, importLevels, importShops, importAchievements, importUserAch, importItems };
+async function createSP() {
+  try {
+    const pass = await SeasonPass.create({
+      name: 'Pase de Temporada 1',
+      start: new Date('2025-04-01'),
+      end: new Date('2025-08-01'),
+      price: 20,
+    });
+    console.log('[ + ] Pase de temporada 1 creado correctamente:');
+  } catch (error) {
+    console.error('[ - ] Error al crear el pase de temporada:', error);
+  }
+}
+
+module.exports = { importUsers, importLevels, importShops, importAchievements, importUserAch, importItems, createSP };
