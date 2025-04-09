@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { importUsers, importLevels, importShops, importAchievements, importUserAch, importItems, importItemsToSP, importItemsToLevels } = require("../data/insert_data.js");
+const { importUsers, importLevels, importShops, importAchievements, importUserAch, importItems, createSP } = require("../data/insert_data.js");
 
 
 const { connectDB, sequelize_loggin, sequelize_game } = require("./config/db");
@@ -35,10 +35,8 @@ const sync_database = async () => {
     await importLevels();
     await importUsers();
     await importShops();
-    await createSP();
     //await importUserAch();
-    await importItemsToSP();    
-    await importItemsToLevels();
+    await createSP(); // Crear el pase de temporada
   } catch (error) {
     console.error("[ - ] Error sincronizando la base de datos de loggin:", error);
     process.exit(1);
