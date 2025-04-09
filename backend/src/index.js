@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
-const { importUsers, importLevels, importShops, importAchievements, importUserAch, importItems, createSP } = require("../data/insert_data.js");
+const { importUsers, importLevels, importShops, importAchievements, importUserAch, importItems, importItemsToSP, importItemsToLevels } = require("../data/insert_data.js");
+
 
 const { connectDB, sequelize_loggin, sequelize_game } = require("./config/db");
 
@@ -36,7 +37,8 @@ const sync_database = async () => {
     await importShops();
     await createSP();
     //await importUserAch();
-    
+    await importItemsToSP();    
+    await importItemsToLevels();
   } catch (error) {
     console.error("[ - ] Error sincronizando la base de datos de loggin:", error);
     process.exit(1);
@@ -90,6 +92,9 @@ app.use("/private", privateGameRoutes);
 const shopRoutes = require("./routes/shopRoutes");
 app.use("/shop", shopRoutes); // Asegúrate de que las rutas de la tienda estén registradas
 
+// Rutas del pase de batalla
+const seasonPassRoutes = require("./routes/seasonPassRoutes");
+app.use("/season-pass", seasonPassRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {
