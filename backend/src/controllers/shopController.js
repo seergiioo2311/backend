@@ -2,7 +2,7 @@ const shopService = require('../services/shopService');
 const User = require('../models/User');
 
 /**
- * @description Obtener los items de una tienda
+ * @description Obtiene los items de una tienda
  * @param {Request} req - Request de Express
  * @param {Response} res - Response de Express
  * @returns {Response} - Devuelve el conjunto de items de una tienda
@@ -47,10 +47,17 @@ const get_name = async(req, res) => {
   }
 }
 
+/**
+ * @description Asocia un item a un usuario 
+ * @param {Request} req - Request de Express 
+ * @param {Response} res - Response de Express 
+ * @returns {Response} - Devuelve un mensaje de éxito o error 
+ * @throws {Error} - Maneja errores internos del servidor
+ */ 
 const itemPurchased = async (req, res) => {
   try {
-    const item_id = req.params.item_id; 
-    let user_name = req.params.user_name; 
+    const item_id = req.body.item_id;
+    let user_name = req.body.user_name; 
     user_name = await User.findOne({ where: { username: user_name } });
     if (!user_name) {
       return res.status(404).json({ message: "Usuario no encontrado." });

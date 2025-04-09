@@ -21,6 +21,10 @@ const Item = sequelize_game.define(
         type: {
             type: DataTypes.ENUM(...Object.values(ITEM_TYPE)),
             allowNull: false
+        },
+        price: {
+            type: DataTypes.DOUBLE,
+            allowNull: false,
         }
     }
 );

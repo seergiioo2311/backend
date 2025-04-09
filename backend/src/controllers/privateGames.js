@@ -15,9 +15,13 @@ const PrivateService = require('../services/privateService');
 const createPrivateGame = async (req, res) => {
     try {
         const { passwd, maxPlayers } = req.body;
+        
+        if (!passwd || !maxPlayers) {
+            return res.status(500).json({ message: "Contraseña y número máximo de jugadores son obligatorios" });
+        }
 
         const newPrivateGame = await PrivateService.createPrivateGame(passwd, maxPlayers);
-        res.status(201).json(newPrivateGame);
+        res.status(200).json(newPrivateGame);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -50,6 +54,9 @@ const getPrivateGame = async (req, res) => {
 const getPrivateEndPoint = async (req, res) => {
     try {
         const { gameId, passwd } = req.body;
+        if (!gameId || !passwd) {
+            return res.status(500).json({ message: "ID de partida privada y contraseña son obligatorios" });
+        }
 
         const privateGame = await PrivateService.joinPrivateGame(gameId, passwd);
         if (privateGame) {
@@ -71,9 +78,13 @@ const getPrivateEndPoint = async (req, res) => {
  */
 const deletePrivateGame = async (req, res) => {
     try {
-        const { gameId } = req.params;
+        const { id } = req.params;
 
-        const deletedPrivateGame = await PrivateService.deletePrivateGame(gameId);
+        if (!id) {
+            return res.status(400).json({ message: "ID de partida privada no proporcionada" });
+        }
+
+        const deletedPrivateGame = await PrivateService.deletePrivateGame(id);
         if (deletedPrivateGame) {
             res.status(200).json({ message: "Partida privada eliminada correctamente" });
         } else {
@@ -93,6 +104,10 @@ const deletePrivateGame = async (req, res) => {
 const getPlayers = async (req, res) => {
     try {
         const { gameId } = req.params;
+
+        if(!gameId) {
+            return res.status(500).json({ message: "ID de partida privada no proporcionada" });
+        }
 
         const players = await PrivateService.getPlayers(gameId);
         if (players) {

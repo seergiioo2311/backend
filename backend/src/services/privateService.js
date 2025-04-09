@@ -1,4 +1,5 @@
 const Priv = require('../models/Private');
+const { Game, GAME_STATUS } = require('../models/Game');
 const { Op } = require('sequelize');
 const axios = require('axios');
 const { Json } = require('sequelize/lib/utils');
@@ -12,16 +13,23 @@ const { Json } = require('sequelize/lib/utils');
  */
 async function createPrivateGame(passwd, maxPlayers) {
     try{
-        
+        //Esta funcion está aun por implementar correctamente, el esqueleto basico es correcto, pero necesitaremos saber los endpoints reales para así, tener esto funcionando correctamente
         //Obtenemos el endpoint donde se ejecutará la partida
-        const response = await axios.get('http://localhost:3000/api/privateGames'); //? Este endpoint está aun por definir ya que lo proporciona el equipo de game_server
-        const link = response.data.gameEndpoint; 
+        //const response = await axios.get('http://localhost:3000/api/privateGames'); //? Este endpoint está aun por definir ya que lo proporciona el equipo de game_server
+        //const link1 = response.data.gameEndpoint; //el nombre de esta variable tambien esta por definir, ya que depende de la respuesta del equipo de game_server
+        // TODO: HAY QUE ELIMINAR ESTA LINEA, ESTO ES SOLO PARA TESTING
+        const link = 'http://localhost:3000/api/privateGames'; //? Este endpoint está aun por definir ya que lo proporciona el equipo de game_server
         
         if(!link) {
             throw new Error('No se pudo obtener el endpoint de la partida privada');
         }
 
+        const newGame = await Game.create({
+            status: GAME_STATUS.ACTIVE,
+        });
+
         const newPrivateGame = await Priv.create({
+            id: newGame.id,
             passwd,
             link,
             maxPlayers,
@@ -31,12 +39,13 @@ async function createPrivateGame(passwd, maxPlayers) {
         return newPrivateGame.link;
     }
     catch (error) {
+        console.error(error);
         throw new Error(`Error creando partida privada: ${error.message}`);
     }
 }
 
 /**
- * @description Obtiene una partida privada por su id
+ * @description Obtiene todas las partidas privadas
  * @returns {Json} - Devuelve la partida privada y error en caso de error
  * @throws {Error} - Maneja errores internos del servidor
  */
@@ -45,7 +54,7 @@ async function getPrivateGames() {
         const privateGames = await Priv.findAll({
             attributes: ['id', 'maxPlayers', 'currentPlayers']
         });
-        return privateGames;
+        return { "privateGames": privateGames };
     } catch (error) {
         throw new Error(`Error obteniendo partidas privadas: ${error.message}`);
     }
@@ -71,7 +80,7 @@ async function joinPrivateGame(gameId, passwd) {
             return null;
         }
 
-        return privateGame.link;
+        return { link: privateGame.link };
     } catch (error) {
         throw new Error(`Error uniendo a la partida privada: ${error.message}`);
     }
@@ -90,6 +99,8 @@ async function deletePrivateGame(gameId) {
                 id: gameId
             }
         });
+        
+        console.log(deletedGame);
 
         if (!deletedGame) {
             return null;
