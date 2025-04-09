@@ -9,6 +9,9 @@ const ShopItem = require("../src/models/Shop_item.js");
 const User_item = require("../src/models/User_item.js");
 const { Achievement, AchievementType } = require("../src/models/Achievement.js");
 const User_achievement = require("../src/models/User_achievement.js");
+const SeasonPass = require("../src/models/SeasonPass.js");
+const SP_item = require("../src/models/SP_item.js");
+const Item_level = require("../src/models/Item_level.js");
 
 /**
  * Función para validar y convertir UUID.
@@ -303,4 +306,26 @@ async function importItems() {
   });
 }
 
-module.exports = { importUsers, importLevels, importShops, importAchievements, importUserAch, importItems };
+async function importItemsToSP() {
+  try {
+    await SeasonPass.create({ id: 1, name: "First season pass", start: new Date(), end: new Date(), price: 1000 });
+    await SP_item.create({ id_season: 1, id_item: 1, level_required: 1 });
+    await SP_item.create({ id_season: 1, id_item: 2, level_required: 2 });
+    console.log('[ + ] Items insertados correctamente en el pase de temporada.');
+  } catch (error) {
+    console.error('[ - ] Error al insertar items en el pase de temporada:', error);
+  }
+}
+
+async function importItemsToLevels() {
+  try {
+    await Item_level.create({ id_item: 10, id_level: 1, season: 1 });
+    await Item_level.create({ id_item: 11, id_level: 2, season: 1});
+    console.log('[ + ] Items añadidos a los niveles correctamente.');
+  } catch (error) {
+    console.error('[ - ] Error al añadir items a los niveles:', error);
+  }
+}
+
+module.exports = { importUsers, importLevels, importTestsForShop, importAchievements, importUserAch, importItems, importItemsToSP, importItemsToLevels };
+

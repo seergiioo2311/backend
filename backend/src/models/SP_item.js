@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const { sequelize_loggin, connectDB, sequelize_game } = require("../config/db.js");
 const SeasonPass = require("./SeasonPass.js");
-const Item = require("./Item.js");
+const { Item, ITEM_TYPE} = require("./Item.js");
 
 const SP_item = sequelize_game.define(
     "SP_item",
@@ -27,6 +27,10 @@ const SP_item = sequelize_game.define(
             },
             onDelete: "CASCADE",
             onUpdate: "CASCADE"
+        },
+        level_required: {
+            type: DataTypes.INTEGER,
+            allowNull: false
         }
     }, 
     {
@@ -34,9 +38,13 @@ const SP_item = sequelize_game.define(
     }
 );
 
-Item.belongsTo(SeasonPass, {
-    foreignKey: "id_item" }); 
+// Relación 1:N entre SeasonPass y SP_item
 SeasonPass.hasMany(Item, {
-    foreignKey: "id_season" }); 
+    foreignKey: "id_season"
+});
+
+Item.belongsTo(SeasonPass, {
+    foreignKey: "id_item"
+});
 
 module.exports = SP_item;
