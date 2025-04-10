@@ -18,7 +18,11 @@ async function assignItem(userId, itemId) {
         if (!user || !item) {
             throw new Error('Usuario o item no encontrado');
         }
-        const userItem = await UserItem.create({ id_user: userId, id_item: itemId });
+        const userItem = await UserItem.update(
+            { unlocked: true,
+              reclaimed: true },
+            { where: { id_user: userId, id_item: itemId } }
+        );
         return userItem;
     } catch (error) {
         throw error;
@@ -43,7 +47,7 @@ async function getAllItems(user_id) {
         if (!user) {
             throw new Error('Usuario no encontrado');
         }
-        const userItems = await UserItem.findAll({where: { id_user: user_id }});
+        const userItems = await UserItem.findAll({where: { id_user: user_id, reclaimed: true }});
         
         // Si no hay items asignados
         if (userItems.length === 0) {

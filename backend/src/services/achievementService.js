@@ -75,7 +75,7 @@ async function getAchievements(userId) {
 
 
 /**
-* @description Desbloquea un logro de un usuario
+* @description Desbloquea un logro de un usuario y actualiza la experiencia del usuario
 * @param {number} userId - El id del usuario
 * @param {number} achievementId - El id del logro
 * @returns {Json} - Un objeto con el logro desbloqueado
@@ -92,12 +92,31 @@ async function unlockAchievement(userId, achievementId) {
       throw new Error('Achievement already unlocked');
     }
 
+    // Obtener el logro para conocer la experiencia que otorga
+    const achievement = await Achievement.findOne({
+      where: { id: achievementId },
+      attributes: ['experience_otorgued'] // Asegúrate de que la tabla tenga este campo
+    });
+
+    if (!achievement) {
+      throw new Error('Achievement not found');
+    }
+
     // Crear nuevo registro de logro desbloqueado
     const newAchievement = await userArch.update({
         achieved: true
         }, {
         where: { id_user: userId, id_achievement: achievementId }
     });
+
+    // Actualizar la experiencia del usuario
+    const user = await User.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    user.experience += achievement.experience_otorgued; // Sumar la experiencia del logro al usuario
+    await user.save();
 
     return {message: 'Achievement unlocked', achievement: newAchievement};
   } catch (error) {

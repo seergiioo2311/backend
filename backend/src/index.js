@@ -9,6 +9,8 @@ const { insertUsers } = require("../data/insert_users.js");
 const { insertRequests } = require("../data/insert_requests.js");
 const { insertFriends } = require("../data/insert_friends.js");
 
+const { triggersSeasonPass } = require("../data/triggers/triggers-season-pass.js");
+
 require("dotenv").config();
 
 const app = express();
@@ -27,16 +29,17 @@ const sync_database = async () => {
 
     await importItems();
     await importAchievements();
+    await importLevels();
     await insertUsers(); // Ejecutar el script para insertar usuarios
     await insertRequests();
     await insertFriends(); // Descomentar para ver los amigos en vez de las solicitudes
     
     //Insertamos los datos en la base de datos
-    await importLevels();
     await importUsers();
     await importShops();
     //await importUserAch();
     await createSP(); // Crear el pase de temporada
+    await triggersSeasonPass(); // Crear los triggers para el pase de temporada
   } catch (error) {
     console.error("[ - ] Error sincronizando la base de datos de loggin:", error);
     process.exit(1);
