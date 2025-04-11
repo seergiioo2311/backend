@@ -46,10 +46,15 @@ async function getShopName(shopId) {
   return shop_name ? shop_name.dataValues.name : null; // Retorna solo el nombre o null si no existe
 }
 
-// Hacer función de insertar item en la relación User_item 
+// Hacer función para actualizar la relación User_item cuando un usuario compra un item en la tienda
 async function itemPurchasedInShopByUser (idItem, idUser) {
   try {
-    results = await User_item.create({ id_item: idItem, id_user: idUser });
+    const results = await User_item.update({
+      unlocked: true,
+      reclaimed: true
+    }, {
+      where: { id_user: idUser, id_item: idItem }
+    });
     return results;
   } catch (error) {
     return {message: error.message}

@@ -75,4 +75,7 @@ app.use("/messages", messagesRoutes);
 const privateGameRoutes = require("./routes/privateRoutes");
 app.use("/private", privateGameRoutes);
 
+const seasonPassRoutes = require("./routes/seasonPassRoutes");
+app.use("/season-pass", seasonPassRoutes);
+
 module.exports = app;

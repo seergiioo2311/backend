@@ -28,7 +28,7 @@ const SP_for_user = sequelize_game.define(
             onDelete: "CASCADE",
             onUpdate: "CASCADE"
         },
-        unlocked: {
+        unlocked: { // Si ha desbloqueado el pase de pago
             type: DataTypes.BOOLEAN,
             allowNull: false
         }

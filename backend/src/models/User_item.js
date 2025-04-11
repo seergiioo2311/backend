@@ -9,6 +9,7 @@ const User_item = sequelize_game.define(
     {
         id_item: {
             type: DataTypes.INTEGER,
+            primaryKey: true,
             allowNull: false,
             references: {
                 model: Item,
@@ -19,6 +20,7 @@ const User_item = sequelize_game.define(
         },
         id_user: {
             type: DataTypes.UUID,
+            primaryKey: true,
             allowNull: false,
             references: {
                 model: User,
@@ -26,7 +28,17 @@ const User_item = sequelize_game.define(
             },
             onDelete: "CASCADE",
             onUpdate: "CASCADE"
-        }
+        },
+        unlocked: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
+        reclaimed: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
     }, 
     {
         timestamps: true,
