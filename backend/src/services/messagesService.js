@@ -8,7 +8,7 @@ const { FRIEND_STATUS } = require("../models/Friends.js");
 //TODO: Queda hacer el testing 
 
 /**
- * @description Obtiene todos los entre dos usuarios
+ * @description Obtiene todos los entre dos usuarios y marca como vistos los mensajes del receptor
  * @param {uuid} userIdEmisor - El id del usuario emisor
  * @param {uuid} userIdReceptor - El id del usuario receptor
  * @returns {Json} - Un objeto con los mensajes
@@ -16,6 +16,18 @@ const { FRIEND_STATUS } = require("../models/Friends.js");
 async function getMessages(userIdEmisor, userIdReceptor) {
   try {
     console.log("🔍 Buscando mensajes para los usuarios con ID:", userIdEmisor, userIdReceptor);  // Mensaje de depuración
+
+    // Actualizar los mensajes no vistos del receptor a "viewed = true"
+    await Message.update(
+      { viewed: true },
+      {
+        where: {
+          id_friend_emisor: userIdReceptor,
+          id_friend_receptor: userIdEmisor,
+          viewed: false, // Solo actualizar los mensajes no vistos
+        },
+      }
+    );
 
     const messages = await Message.findAll({
         where: {
@@ -68,6 +80,37 @@ async function addMessage(id, userIdEmisor, userIdReceptor, messageContent, date
 }
 
 /**
+ * @description Comprueba si un usuario tiene mensajes no vistos
+ * @param {uuid} idEmisor - El id del usuario emisor
+ * @param {uuid} idReceptor - El id del usuario receptor
+ * @returns {Json} - Un objeto con un mensaje de éxito o error
+ * @throws {Error} - Si no se encuentra
+ */
+async function hasNotViewedMessages(idEmisor, idReceptor) {
+  try {
+    console.log("🔍 Comprobando mensajes no vistos entre los usuarios con ID:", idEmisor, idReceptor);  // Mensaje de depuración
+    const messages = await Message.findAll({
+      where: {
+        id_friend_receptor: idReceptor,
+        id_friend_emisor: idEmisor,
+        viewed: false // Solo mensajes no vistos
+      }
+    });
+
+    console.log("🔍 Mensajes no vistos encontrados:", messages);  // Mensaje de depuración
+
+    if (messages.length > 0) {
+      return { message: "Hay mensajes no vistos", data: messages };
+    } else {
+      return { message: "No hay mensajes no vistos" };
+    }
+  } catch (error) {
+    console.error("❌ Error al comprobar mensajes no vistos:", error);  // Mensaje de error detallado
+    return { message: "Error al comprobar mensajes no vistos." };
+  }
+}
+
+/**
  * @description Comprueba si un usuario esta registrado en la base de datos
  * @param {number} userId - El id del usuario
  * @returns {Json} - Un objeto con un mensaje de éxito o error
@@ -87,4 +130,4 @@ async function checkUser(userId) {
 }
 
 
-module.exports = { getMessages, addMessage, checkUser };
+module.exports = { getMessages, addMessage, hasNotViewedMessages, checkUser,  };

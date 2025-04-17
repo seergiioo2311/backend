@@ -39,6 +39,10 @@ const Message = sequelize_game.define(
             type: DataTypes.STRING(10),
             allowNull: false,
            // defaultValue: DataTypes.NOW  // Automatically set to current timestamp
+        },
+        viewed: { // Indica si el usuario receptor ha visto el mensaje
+            type: DataTypes.BOOLEAN,
+            defaultValue: false  
         }
     },
     {
