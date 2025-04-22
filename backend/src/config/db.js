@@ -15,7 +15,7 @@ const sequelize_loggin = new Sequelize(
 
 // Crear instancia de Sequelize con los datos de conexión para GAMES
 const sequelize_game = new Sequelize(
-  process.env.DB_NAME_GAME, // Nombre de la base de datos
+  process.env.DB_NAME_USERS, // Nombre de la base de datos
   process.env.DB_USER, // Usuario de la base de datos
   process.env.DB_PASSWORD, // Contraseña
   {

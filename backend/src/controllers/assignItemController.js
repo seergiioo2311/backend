@@ -1,4 +1,4 @@
-const storeService = require('../services/storeService');
+const itemService = require('../services/itemService');
 
 /**
  * @description Asigna un item a un usuario.
@@ -12,8 +12,11 @@ const assignItem = async (req, res) => {
     const user_id = req.body.userId;
     const item_id = req.body.itemId;
 
-    const result1 = await storeService.checkUser(user_id);
-    const result2 = await storeService.checkItem(item_id);
+    console.log("User ID: ", user_id);
+    console.log("Item ID: ", item_id);
+
+    const result1 = await itemService.checkUser(user_id);
+    const result2 = await itemService.checkItem(item_id);
 
     //Si el usuario no existe en la base de datos
     if (!result1 || !result2) {
@@ -22,8 +25,9 @@ const assignItem = async (req, res) => {
     }
 
 
-    const userItem = await storeService.assignItem(user_id, item_id);
+    const userItem = await itemService.assignItem(user_id, item_id);
     if (userItem) {
+      console.log("Item asignado correctamente", userItem);
       res.status(200).json({ message: "Item asignado correctamente" });
     }
     else {
@@ -45,14 +49,14 @@ const assignItem = async (req, res) => {
 const getAllItems = async (req, res) => {
   try {
     const user_id  = req.params.id;
-    const result = await storeService.checkUser(user_id);
+    const result = await itemService.checkUser(user_id);
 
     //Si el usuario no existe en la base de datos
     if (!result) {
       console.log("Usuario no encontrado");
       throw new Error("User not found");
     }
-    const items = await storeService.getAllItems(user_id);
+    const items = await itemService.getAllItems(user_id);
     res.status(200).json({ items });
   } catch (error) {
     res.status(500).json({ message: error.message });

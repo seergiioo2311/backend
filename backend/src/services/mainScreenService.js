@@ -120,8 +120,9 @@ async function getUnlockedSkins(userId) {
 
 /**
  * @description Actualiza los datos del usuario
- * @param {Request} req - Request de Express
- * @param {Response} res - Response de Express
+ * @param {uuid} userId - El id del usuario
+ * @param {string} newUsername - El nuevo nombre de usuario
+ * @param {string} newPassword - La nueva contraseña
  * @returns {Response} - Devuelve un mensaje de éxito si se actualizan los datos del usuario y uno de error en caso de error
  * @throws {Error} - Maneja errores internos del servidor
  */
@@ -174,4 +175,47 @@ async function updateUser(userId, newUsername, newPassword) {
   }
 }
 
-module.exports = { getUsernameById, getIdByUsername, updateConnection, getUnlockedSkins, updateUser };
+/**
+ * @description Verifica la contraseña del usuario
+ * @param {uuid} userId - El id del usuario
+ * @param {string} password - La contraseña a verificar
+ * @returns {Response} - Devuelve un mensaje de éxito si la contraseña es correcta y uno de error en caso de error
+ * @throws {Error} - Maneja errores internos del servidor
+ */
+async function verifyPassword(userId, password) {
+  try {
+    // Verificar que se proporcionaron datos
+    if (!userId || !password) {
+      return {message: "Se requiere userId y password"};
+    }
+
+    // Buscar el usuario por su ID
+    const user = await User.findOne({ where: { id: userId } });
+    if (!user) {
+      return {message: "Usuario no encontrado"};
+    }
+
+    // Buscar el login correspondiente al usuario
+    const loggin = await Loggin.findOne({ where: { username: user.username } });
+    if (!loggin) {
+      return {message: "Loggin no encontrado"};
+    }
+
+    // Verificar si la contraseña proporcionada coincide con la almacenada
+    const isPasswordValid = await bcrypt.compare(password, loggin.password);
+    console.log(password);
+    console.log(loggin.password);
+    if (!isPasswordValid) {
+      return {message: "Contraseña incorrecta"};
+    }
+
+    // Responder con éxito si la contraseña es válida
+    return { message: 'OK' };
+
+  } catch (error) {
+    console.error('Error al verificar la contraseña:', error);
+    return {message: error.message};
+  }
+}
+
+module.exports = { getUsernameById, getIdByUsername, updateConnection, getUnlockedSkins, updateUser, verifyPassword };

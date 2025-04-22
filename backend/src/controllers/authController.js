@@ -20,7 +20,7 @@ const { Achievement, Achievement_type } = require('../models/Achievement.js');
  * @throws {Error} - Lanza un error si hay un problema al enviar el correo electronico
  */
 async function sendMail(email, token) {
-    const resetLink = `http://localhost:3000/auth/reset-password/${token}`; //Creamos el link de recuperacion de contraseña
+    const resetLink = `http://localhost:4321/changePassword?token=${token}`; //Creamos el link de recuperacion de contraseña
     try {
         const info = await transporter.sendMail({
         from: process.env.EMAIL_USER,
@@ -271,8 +271,15 @@ const delete_user = async (req, res) => {
  */
 const reset_password = async (req, res) => {
     try {
-        const {token} = req.params; //Extraemos el token de la URL
-        const {newPassword} = req.body; //Extraemos la nueva contraseña del body de la petición
+        const { token } = req.params;
+
+        // Extraemos la nueva contraseña del body de la solicitud
+        const { newPassword } = req.body;
+
+        // Verificamos si el token y la nueva contraseña están presentes
+        if (!token || !newPassword) {
+            return res.status(400).json({ message: 'Token o nueva contraseña faltantes' });
+        }
         
 
         const user = await Loggin.findOne({
@@ -283,6 +290,7 @@ const reset_password = async (req, res) => {
         }); //Buscamos el usuario en la base de datos con el token y la fecha de expiracion correcta
 
         if(!user) {
+            console.log("El token no es válido o ha expirado");
             return res.status(400).json({message: 'Token inválido o expirado'}); //Si el usuario no existe, retornamos un mensaje de error (el token no es válido o a expirado)
         }
 

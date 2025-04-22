@@ -73,4 +73,56 @@ const itemPurchased = async (req, res) => {
   }
 }
 
-module.exports = { get_items, get_name, itemPurchased };
+/**
+ * @description Consulta si un usuario tiene desbloqueado el pase de temporada
+ * @param {Request} req - Request de Express 
+ * @param {Response} res - Response de Express 
+ * @returns {Response} - Devuelve un mensaje de éxito o error 
+ * @throws {Error} - Maneja errores internos del servidor
+ */ 
+const hasSP = async (req, res) => {
+  try {
+    const user_id = req.params.id;
+    const user_name = await User.findOne({ where: { id: user_id } });
+    if (!user_name) {
+      return res.status(404).json({ message: "Usuario no encontrado." });
+    }
+    const result = await shopService.hasSP(user_id);
+    console.log(result);
+    if (result.success) {
+      res.status(200).json( result );
+    } else {
+      res.status(404).json({ message: "Error" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+/**
+ * @description Desbloquea el pase de temporada para un usuario
+ * @param {Request} req - Request de Express 
+ * @param {Response} res - Response de Express 
+ * @returns {Response} - Devuelve un mensaje de éxito o error 
+ * @throws {Error} - Maneja errores internos del servidor
+ */ 
+const purchasedSP = async (req, res) => {
+  try {
+    const user_id = req.body.user_id;
+    const user_name = await User.findOne({ where: { id: user_id } });
+    if (!user_name) {
+      return res.status(404).json({ message: "Usuario no encontrado." });
+    }
+    const result = await shopService.unlockSeasonPassForUser(user_id);
+    console.log(result);
+    if (result) {
+      res.status(200).json({ message: "SP asociado al usuario correctamente." });
+    } else {
+      res.status(404).json({ message: "No se ha podido asociar el SP al usuario." });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+module.exports = { get_items, get_name, itemPurchased, hasSP, purchasedSP };
