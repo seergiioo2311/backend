@@ -30,12 +30,17 @@ const ContactSupport = sequelize_game.define(
         },
         resolved: {
             type: DataTypes.BOOLEAN,
-            allowNull: true
+            allowNull: false,
+            defaultValue: false
         },
         type: {
             type: DataTypes.ENUM(...Object.values(TYPE_ISSUE)),
             allowNull: false
         },
+        reponse: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        }
     },
     {
         timestamps: true
