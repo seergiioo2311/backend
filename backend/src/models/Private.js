@@ -22,7 +22,7 @@ const Private = sequelize_game.define(
         },
         link: {
             type: DataTypes.STRING, //Enlace al endpoint de esta partida privada
-            allowNull: false
+            allowNull: true
         },
         maxPlayers: {
             type: DataTypes.INTEGER, //Número máximo de jugadores

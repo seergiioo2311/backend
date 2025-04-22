@@ -1,4 +1,5 @@
 const Priv = require('../models/Private');
+const { Playing, PLAYER_STATUS } = require('../models/Playing');
 const { Game, GAME_STATUS } = require('../models/Game');
 const { Op } = require('sequelize');
 const axios = require('axios');
@@ -135,4 +136,122 @@ async function getPlayers(gameId) {
     }
 }
 
-module.exports = { createPrivateGame, getPrivateGames, joinPrivateGame, deletePrivateGame, getPlayers };
+/**
+ * @description Marca a un jugador como listo en una partida privada
+ * @param {Number} gameId - Id de la partida privada
+ * @param {Number} userId - Id del jugador
+ * @returns {Json} - Devuelve null si se ha marcado como listo correctamente, -1 si no se ha encontrado la partida privada
+ */
+async function isReady(gameId, userId) {
+    try {
+        const privateGame = await Priv.findOne({
+            where: {
+                id: gameId,
+                userId: userId
+            }
+        });
+
+        if (!privateGame) {
+            return -1;
+        }
+
+        const playing = await Playing.findOne({
+            where: {
+                id_game: gameId,
+                id_user: userId
+            }
+        });
+
+        playing.status = PLAYER_STATUS.READY;
+        await playing.save();
+
+        return null;
+    } catch (error) {
+        throw new Error(`Error obteniendo jugadores de la partida privada: ${error.message}`);
+    }
+}
+
+/**
+ * @description Obtiene todos los jugadores de una partida privada
+ * @param {Number} gameId - Id de la partida privada
+ * @returns {Json} - Devuelve los jugadores de la partida privada y error en caso de error
+ */
+async function getAllPlayers(gameId) {
+    try {
+        const players = await Playing.findAll({
+            where: {
+                id_game: gameId
+            }
+        });
+
+        return { userId: players.id_user, status: players.status, n_divisions: players.n_divisions, x_pos: players.x_position, y_pos: players.y_position, score: players.score };
+    } catch (error) {
+        throw new Error(`Error obteniendo jugadores de la partida privada: ${error.message}`);
+    }
+}
+
+/**
+ * @description Obtiene el link de una partida privada
+ * @param {Number} gameId - Id de la partida privada
+ * @returns {Json} - Devuelve el link de la partida privada y error en caso de error
+ */
+async function getLink(gameId) {
+    try {
+        const privateGame = await Priv.findOne({
+            where: {
+                id: gameId
+            }
+        });
+
+        if (!privateGame) {
+            return -1;
+        }
+
+        if (privateGame.link === null) {
+            return -2;
+        }
+
+        return privateGame.link;
+    } catch (error) {
+        throw new Error(`Error obteniendo el link de la partida privada: ${error.message}`);
+    }
+}
+
+/**
+ * @description Actualiza los valores de un determinado jugador para una determinada partida
+ * @param {Number} gameId - Id de la partida privada
+ * @param {Number} userId - Id del usuario
+ * @param {Number} status - Nuevo estado del usuario
+ * @param {Number} n_divisions - Nuevo número de divisiones del usuario
+ * @param {Number} x_pos - Nueva posición en el eje X del usuario
+ * @param {Number} y_pos - Nueva posición en el eje Y del usuario
+ * @param {Number} score - Nueva puntuación del usuario
+ * @returns - Devuelve null, en el caso de que se haya actualizado correctamente, o -1, en el caso de que no haya encontrado al usuario, o lanza un error en caso de error
+ */
+async function uploadValues(gameId, userId, status, n_divisions, x_pos, y_pos, score) {
+    try {
+        const player = await Playing.findOne({
+            where: {
+                id_game: gameId,
+                id_user: userId
+            }
+        });
+
+        if (!player) {
+            return -1;
+        }
+
+        player.status = status;
+        player.n_divisions = n_divisions;
+        player.x_position = x_pos;
+        player.y_position = y_pos;
+        player.score = score;
+
+        await player.save();
+        return null;
+    } catch (error) {
+        throw new Error(`Error actualizando los valores del usuario`);
+    }
+}
+
+module.exports = { createPrivateGame, getPrivateGames, joinPrivateGame, deletePrivateGame, getPlayers, isReady, getAllPlayers, getLink, uploadValues };

@@ -1,8 +1,5 @@
 const Shop = require("../models/Shop.js");
-const Shop_item = require("../models/Shop_item.js");
-const Item = require("../models/Item.js");
 const User_item = require("../models/User_item.js");
-const User = require("../models/User.js");
 const SP_for_user = require("../models/SP_for_user.js");
 const SeasonPass = require("../models/SeasonPass.js");
 const { Json } = require("sequelize/lib/utils");

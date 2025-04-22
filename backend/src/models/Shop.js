@@ -13,7 +13,16 @@ const Shop = sequelize_game.define(
             allowNull: false,
             unique: true
         },
-    }, {
+        start: {
+            type: DataTypes.DATE,
+            allowNull: true
+        },
+        end: {
+            type: DataTypes.DATE,
+            allowNull: true
+        }
+    }, 
+    {
         timestamps: true
     }
 );
