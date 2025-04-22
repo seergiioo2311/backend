@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const { importUsers, importLevels, importShops, importAchievements, importUserAch, importItems, createSP } = require("../data/insert_data.js");
 
-
 const { connectDB, sequelize_loggin, sequelize_game } = require("./config/db");
 
 const { insertUsers } = require("../data/insert_users.js");
@@ -10,6 +9,8 @@ const { insertRequests } = require("../data/insert_requests.js");
 const { insertFriends } = require("../data/insert_friends.js");
 
 const { triggersSeasonPass } = require("../data/triggers/triggers-season-pass.js");
+
+const authMiddleware = require("./middlewares/authMiddleware");
 
 require("dotenv").config();
 
@@ -54,6 +55,9 @@ app.use(express.json());
 
 // Middleware para permitir CORS
 app.use(cors());
+
+// Middleware de autenticación
+app.use(authMiddleware);
 
 // Ruta de prueba
 app.get("/", (req, res) => {
