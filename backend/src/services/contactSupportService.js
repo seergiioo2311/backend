@@ -4,11 +4,12 @@ const axios = require('axios');
 const { Json } = require('sequelize/lib/utils');
 
 
-async function newMessage(title, email, description, type) {
+async function newMessage(title, email, name, description, type) {
     try {
         const newMessage = await ContactSupport.create({
             title: title,
             email: email,
+            name: name,
             description: description,
             type: type
         });
@@ -124,4 +125,21 @@ async function deleteMessage(id) {
     }
 }
 
-module.exports = { newMessage, getAllMessages, getMesageById, responseMessage, getMessagesUnresolved, getMessagesResolved, getMessagesByType, deleteMessage };
+async function deleteUser(userId) {
+    try {
+        const user = await ContactSupport.findOne({
+            where: { id: userId }
+        });
+
+        if (!user) {
+            throw new Error('Usuario no encontrado');
+        }
+
+        await user.destroy();
+        return user;
+    } catch (error) {
+        throw new Error(`Error eliminando usuario: ${error.message}`);
+    }
+}
+
+module.exports = { newMessage, getAllMessages, getMesageById, responseMessage, getMessagesUnresolved, getMessagesResolved, getMessagesByType, deleteMessage, deleteUser };

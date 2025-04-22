@@ -24,6 +24,10 @@ const ContactSupport = sequelize_game.define(
             type: DataTypes.STRING,
             allowNull: false
         },
+        name:  {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
         description: {
             type: DataTypes.TEXT,
             allowNull: false

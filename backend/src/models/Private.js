@@ -16,6 +16,10 @@ const Private = sequelize_game.define(
             onDelete: "CASCADE",
             onUpdate: "CASCADE"
         },
+        name : {
+            type: DataTypes.STRING, //Nombre de la partida privada
+            allowNull: false
+        },
         passwd: {
             type: DataTypes.STRING,
             allowNull: false

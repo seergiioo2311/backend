@@ -4,6 +4,7 @@ const { Game, GAME_STATUS } = require('../models/Game');
 const { Op } = require('sequelize');
 const axios = require('axios');
 const { Json } = require('sequelize/lib/utils');
+const { sequelize_game } = require('../config/db');
 
 /**
  * @description Crea una partida privada nueva
@@ -12,7 +13,7 @@ const { Json } = require('sequelize/lib/utils');
  * @returns {Json} - Devuelve la partida privada creada
  * @throws {Error} - Maneja errores internos del servidor
  */
-async function createPrivateGame(passwd, maxPlayers) {
+async function createPrivateGame(name, passwd, maxPlayers) {
     try{
         //Esta funcion está aun por implementar correctamente, el esqueleto basico es correcto, pero necesitaremos saber los endpoints reales para así, tener esto funcionando correctamente
         //Obtenemos el endpoint donde se ejecutará la partida
@@ -32,6 +33,7 @@ async function createPrivateGame(passwd, maxPlayers) {
         const newPrivateGame = await Priv.create({
             id: newGame.id,
             passwd,
+            name,
             link,
             maxPlayers,
             currentPlayers: 0
@@ -53,7 +55,7 @@ async function createPrivateGame(passwd, maxPlayers) {
 async function getPrivateGames() {
     try {
         const privateGames = await Priv.findAll({
-            attributes: ['id', 'maxPlayers', 'currentPlayers']
+            attributes: ['id', 'name', 'maxPlayers', 'currentPlayers']
         });
         return { "privateGames": privateGames };
     } catch (error) {
@@ -204,11 +206,24 @@ async function getLink(gameId) {
         });
 
         if (!privateGame) {
-            return -1;
+            throw new Error('Partida privada no encontrada');
         }
 
         if (privateGame.link === null) {
-            return -2;
+            throw new Error('Link no disponible');
+        }
+
+        const res = await Playing.count({
+            where: {
+                id_game: gameId,
+                status: {
+                    [Op.eq]: PLAYER_STATUS.READY
+                }
+            }
+        });
+
+        if (res =privateGame.get('maxPlayers')) {
+            throw new Error('No se puede obtener el link, hay jugadores pendientes de dar listo');
         }
 
         return privateGame.link;
@@ -238,7 +253,7 @@ async function uploadValues(gameId, userId, status, n_divisions, x_pos, y_pos, s
         });
 
         if (!player) {
-            return -1;
+            throw new Error('No se ha encontrado al usuario');
         }
 
         player.status = status;
@@ -254,4 +269,35 @@ async function uploadValues(gameId, userId, status, n_divisions, x_pos, y_pos, s
     }
 }
 
-module.exports = { createPrivateGame, getPrivateGames, joinPrivateGame, deletePrivateGame, getPlayers, isReady, getAllPlayers, getLink, uploadValues };
+async function getPrivateGamesUnfinished(userId) {
+    try {
+        const status = GAME_STATUS.PAUSED;
+        const privateGames = sequelize_game.query(
+            `
+            SELECT pr.id, pr.name, pr.passwd, pr.maxPlayers, pr.createdAt
+            FROM "Users" p, "Privates" pr
+            INNER JOIN "Playings" pl ON p.id = pl.id_user AND pl.id_game = pr.id
+            WHERE p.id = :userId AND
+                pr.id = (
+                    SELECT g.id
+                    FROM "Games" g
+                    WHERE g.id = pr.id AND g.status = :status
+                )
+            `
+            ,{
+                replacements: { userId, status },
+                type: sequelize_game.QueryTypes.SELECT
+            }
+        );
+
+        if (!privateGames) {
+            return null;
+        }
+
+        return privateGames;
+    } catch (error) {
+        throw new Error(`Error obteniendo partidas privadas no terminadas: ${error.message}`);
+    }
+}
+
+module.exports = { createPrivateGame, getPrivateGames, joinPrivateGame, deletePrivateGame, getPlayers, isReady, getAllPlayers, getLink, uploadValues, getPrivateGamesUnfinished };

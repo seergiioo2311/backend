@@ -189,15 +189,7 @@ const getLink = async (req, res) => {
         }
 
         const link = await PrivateService.getLink(gameId);
-        if (link === -1) {
-            res.status(404).json({ message: "Partida privada no encontrada" });
-        }
-        else if (link === -2) {
-            res.status(404).json({ message: "No se ha encontrado el link de la partida privada" });
-        }
-        else {
-            res.status(200).json(link);
-        }
+        res.status(200).json(link);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -222,16 +214,31 @@ const uploadValues = async(req, res) => {
         }
     
         const res = await PrivateService.uploadValues(gameId, userId, status, n_divisions, x_pos, y_pos, score);
-        if (res === -1) {
-            res.status(404).json({ message: "No se ha encontrado al usuario" });
-        }
-        else {
-            res.status(200).json({ message: "Se han actualizado correctamente los valores" });
-        }
+        res.status(200).json({ message: "Se han actualizado correctamente los valores" });
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
 }
 
+const getPrivateGamesUnfinished = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        
+        if (!userId) {
+            return res.status(500).json({ message: "ID de usuario no proporcionada" });
+        }
 
-module.exports = { createPrivateGame, getPrivateGame, getPrivateEndPoint, deletePrivateGame, getPlayers, isReady, getAllPlayers, getLink, uploadValues };
+        const privateGames = await PrivateService.getPrivateGamesUnfinished(userId);
+        if (!privateGames) {
+            return res.status(404).json({ message: "No se han encontrado partidas privadas" });
+        }
+        else {
+            res.status(200).json(privateGames);
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+
+module.exports = { createPrivateGame, getPrivateGame, getPrivateEndPoint, deletePrivateGame, getPlayers, isReady, getAllPlayers, getLink, uploadValues, getPrivateGamesUnfinished };
