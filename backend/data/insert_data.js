@@ -150,7 +150,7 @@ async function importShops() {
 
       const assignedItems = new Set();
       while (assignedItems.size < 4) {
-        const randomId = Math.floor(Math.random() * 15) + 2; // ID entre 2 y 10
+        const randomId = Math.floor(Math.random() * 15) + 2; // ID entre 2 y 16
         if (!assignedItems.has(randomId)) {
           assignedItems.add(randomId);
 
@@ -317,7 +317,7 @@ async function createSP() {
     });
     // Introducir items en el pase de batalla pago
     for (let level = 1; level <= 20; level++) {
-      const itemId = 20 + level; // Generar un ID de item basado en el nivel (por ejemplo, 21, 22, ..., 40)
+      const itemId = 16 + level; // Generar un ID de item basado en el nivel (por ejemplo, 21, 22, ..., 40)
       await SP_item.create({ 
         id_season: 1, 
         id_item: itemId, 
@@ -325,10 +325,10 @@ async function createSP() {
       });
     }
     // Introducir items en el pase de batalla gratuito
-    await Item_level.create({ id_item: 16, id_level: 3, season: 1 });
-    await Item_level.create({ id_item: 17, id_level: 8, season: 1});
-    await Item_level.create({ id_item: 18, id_level: 13, season: 1 });
-    await Item_level.create({ id_item: 19, id_level: 18, season: 1});
+    await Item_level.create({ id_item: 37, id_level: 3, season: 1 });
+    await Item_level.create({ id_item: 38, id_level: 8, season: 1});
+    await Item_level.create({ id_item: 39, id_level: 13, season: 1 });
+    await Item_level.create({ id_item: 40, id_level: 18, season: 1});
     console.log('[ + ] Items insertados correctamente en el pase de temporada.');
   } catch (error) {
     console.error('[ - ] Error al insertar items en el pase de temporada:', error);

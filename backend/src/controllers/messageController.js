@@ -57,5 +57,34 @@ const add_message = async (req, res) => {
   }
 }
 
+/**
+ * @description Comrpueba si hay mensajes no vistos
+ * @param {Request} req - Request de Express
+ * @param {Response} res - Response de Express
+ * @returns {Response} - Devuelve un mensaje de éxito o error
+ * @throws {Error} - Maneja errores internos del servidor
+ */
+const has_not_viewed_messages = async (req, res) => {   
+  try {
+    const idEmisor = req.params.idEmisor;
+    const idReceptor = req.params.idReceptor;
+    const status1 = await messagesService.checkUser(idReceptor);
+    const status2 = await messagesService.checkUser(idEmisor);
+    
+    // En caso de que alguno de los usuarios no exista
+    if(!status1 || !status2) {
+      throw new Error("Users not found");
+    }
 
-module.exports = { get_messages, add_message };
+    const result = await messagesService.hasNotViewedMessages(idEmisor, idReceptor);
+    if (result) {
+      res.status(200).json(result);
+    }
+  }
+  catch(error) {
+    res.status(500).json({message: error.message});
+  }
+}
+
+
+module.exports = { get_messages, add_message, has_not_viewed_messages };

@@ -4,47 +4,47 @@ const users = [
   {
     username: "user1",
     email: "user1@example.com",
-    password: "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+    password: "f25648ff",
   },
   {
     username: "user2",
     email: "user2@example.com",
-    password: "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+    password: "f25648ff",
   },
   {
     username: "user3",
     email: "user3@example.com",
-    password: "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+    password: "f25648ff",
   },
   {
     username: "user4",
     email: "user4@example.com",
-    password: "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+    password: "f25648ff",
   },
   {
     username: "user5",
     email: "user5@example.com",
-    password: "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+    password: "f25648ff",
   },
   {
     username: "user6",
     email: "user6@example.com",
-    password: "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+    password: "f25648ff",
   },
   {
     username: "user7",
     email: "user7@example.com",
-    password: "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+    password: "f25648ff",
   },
   {
     username: "user8",
     email: "user8@example.com",
-    password: "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+    password: "f25648ff",
   },
   {
     username: "user9",
     email: "user9@example.com",
-    password: "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+    password: "f25648ff",
   },
   // Agrega más usuarios aquí si lo necesitas
 ];

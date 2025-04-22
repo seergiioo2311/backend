@@ -21,7 +21,8 @@ const User = sequelize_game.define(
         },
         experience: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: false,
+            defaultValue: 0
         },
         lastConnection: {
             type: DataTypes.DATE,
