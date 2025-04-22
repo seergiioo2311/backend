@@ -12,7 +12,8 @@ const rutasPublicas = ["/sign-in", "/sign-up", "/forgot-password", "/reset-passw
  */ 
 const authMiddleware = (req, res, next) => {
     // Permitir rutas públicas sin autenticación
-    if (rutasPublicas.includes(req.path)) {
+    const currentPath = req.path.replace(/^\/auth/, ""); // Elimina el prefijo "/auth"
+    if (rutasPublicas.some((ruta) => currentPath.startsWith(ruta))) {
         return next();
     }
 
