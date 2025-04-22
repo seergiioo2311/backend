@@ -11,7 +11,6 @@ const bcrypt = require('bcrypt');
  */
 async function getUsernameById(userId) {
   try {
-      console.log(`🔍 Buscando usuario con ID: ${userId}`);
 
       // Verificar que el ID no sea undefined o null antes de buscarlo en la base de datos
       if (!userId) {
@@ -28,7 +27,6 @@ async function getUsernameById(userId) {
           return null; // Retornamos null si no existe
       }
 
-      console.log(`✅ Usuario encontrado: ${user.username}`);
       return user.username;
   } catch (error) {
       console.error("❌ Error al obtener el usuario:", error);
@@ -43,7 +41,6 @@ async function getUsernameById(userId) {
  */
 async function getIdByUsername(username) {
   try {
-      console.log(`🔍 Buscando usuario con nombre de usuario: ${username}`);
 
       // Verificar que el username no sea undefined o null antes de buscarlo en la base de datos
       if (!username) {
@@ -61,7 +58,6 @@ async function getIdByUsername(username) {
           return null; // Retornamos null si no existe
       }
 
-      console.log(`✅ Usuario encontrado: ${user.id}`);
       return user.id;
   } catch (error) {
       console.error("❌ Error al obtener el ID del usuario:", error);

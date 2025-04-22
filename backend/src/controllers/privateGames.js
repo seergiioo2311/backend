@@ -6,7 +6,7 @@ const { Op } = require('sequelize');
 const PrivateService = require('../services/privateService');
 
 /**
- *  @description Crea una partida privada nueva
+ * @description Crea una partida privada nueva
  * @param {Request} req - Request de Express 
  * @param {Response} res - Response de Express 
  * @returns {Response} - Devuelve la partida privada creada y uno de error en caso de error
@@ -16,13 +16,42 @@ const createPrivateGame = async (req, res) => {
     try {
         const { passwd, maxPlayers } = req.body;
         
-        if (!passwd || !maxPlayers) {
+        if(!passwd || !maxPlayers) {
             return res.status(500).json({ message: "Contraseña y número máximo de jugadores son obligatorios" });
         }
 
         const newPrivateGame = await PrivateService.createPrivateGame(passwd, maxPlayers);
         res.status(200).json(newPrivateGame);
     } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+/**
+ * @description Obtiene una partida privada a partir de un identificador único
+ * @param {Request} req - Request de Express 
+ * @param {Response} res - Response de Express 
+ * @returns {Response} - Devuelve la partida privada obtenida, en caso de existir, sino error
+ * @throws {Error} - Maneja errores internos del servidor
+ */ 
+const getPrivateGameWithId = async (req, res) => {
+    try {
+    
+        const gameId = req.params.gameId;
+        
+        if(!gameId){
+            res.status(500).json({ message: error.message });    
+        }
+        
+        const privateGame = await PrivateService.getPrivateGameWithId(gameId);
+        
+        if(!privateGame) {
+            res.status(500).json({message: "No se ha encontrado la partida privada."});
+        }
+        
+        res.status(200).json(privateGame);
+
+    } catch(error) {
         res.status(500).json({ message: error.message });
     }
 }
@@ -120,4 +149,4 @@ const getPlayers = async (req, res) => {
     }
 }
 
-module.exports = { createPrivateGame, getPrivateGame, getPrivateEndPoint, deletePrivateGame, getPlayers };
+module.exports = { createPrivateGame, getPrivateGame, getPrivateEndPoint, deletePrivateGame, getPlayers, getPrivateGameWithId };

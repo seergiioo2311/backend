@@ -32,6 +32,10 @@ const Private = sequelize_game.define(
             type: DataTypes.INTEGER, //Número de jugadores actuales
             allowNull: false
         },
+        unique_code: { // Codigo el cual el usuario podrá compartir para obtener la partida privada
+            type: DataTypes.UUID,
+            allowNull: false
+        },
     }, 
     {
         timestamps: true
