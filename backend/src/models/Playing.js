@@ -5,7 +5,9 @@ const Game = require("./Game.js");
 
 const PLAYER_STATUS = {
     ALIVE: "Alive",
-    ELIMINATED: "Eliminated"
+    ELIMINATED: "Eliminated",
+    WAITING: "Waiting", 
+    READY: "Ready"
 };
 
 const Playing = sequelize_game.define(

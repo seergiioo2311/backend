@@ -16,13 +16,17 @@ const Private = sequelize_game.define(
             onDelete: "CASCADE",
             onUpdate: "CASCADE"
         },
+        name : {
+            type: DataTypes.STRING, //Nombre de la partida privada
+            allowNull: false
+        },
         passwd: {
             type: DataTypes.STRING,
             allowNull: false
         },
         link: {
             type: DataTypes.STRING, //Enlace al endpoint de esta partida privada
-            allowNull: false
+            allowNull: true
         },
         maxPlayers: {
             type: DataTypes.INTEGER, //Número máximo de jugadores

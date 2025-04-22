@@ -3,8 +3,7 @@ const { sequelize_game, connectDB } = require("../config/db.js");
 
 const TOURNAMENT_STATUS = {
     PENDING: "Pending",
-    ACTIVE: "Active",
-    FINISH: "Finish"
+    ACTIVE: "Active"
 };
 
 const Tournament = sequelize_game.define(
