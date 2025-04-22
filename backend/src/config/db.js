@@ -29,6 +29,7 @@ const sequelize_game = new Sequelize(
 const connectDB = async () => {
   try {
     await sequelize_loggin.authenticate();
+    await sequelize_game.authenticate();
     console.log("[ + ] Conectado a PostgreSQL");
   } catch (error) {
     console.error(" [ - ] Error conectando a PostgreSQL:", error);
