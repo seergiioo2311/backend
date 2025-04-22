@@ -20,12 +20,10 @@ const insertFriends = async () => {
         const idUser2 = await getIdByUsername(user2);
   
         if (!idUser1 || !idUser2) {
-          console.log(`No se encontraron los usuarios ${user1} o ${user2}`);
           continue;
         }
   
         const result = await addFriend(idUser1, idUser2, "Accepted");
-        console.log(`Amistad añadida entre ${user1} y ${user2}:`, result.message);
       }
   
       console.log("[ + ] Todas las relaciones de amistad han sido insertadas.");

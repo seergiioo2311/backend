@@ -20,12 +20,10 @@ const insertRequests = async () => {
         const idUser2 = await getIdByUsername(user2);
   
         if (!idUser1 || !idUser2) {
-          console.log(`No se encontraron los usuarios ${user1} o ${user2}`);
           continue;
         }
   
         const result = await addSolicitud(idUser1, idUser2, "Pending");
-        console.log(`Solicitud añadida entre ${user1} y ${user2}:`, result.message);
       }
   
       console.log("[ + ] Todas las solicitudes de amistad han sido insertadas.");

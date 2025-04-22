@@ -1,0 +1,46 @@
+services:
+  backend:
+    build:
+      context: .
+    container_name: mi-backend
+    ports:
+      - 3000:3000
+    depends_on:
+      - dbUsers
+      - dbLogging
+    environment:
+      DB_HOST_USERS: dbUsers
+      DB_HOST_LOGGING: dbLogging
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: quieroMantenerEstaContraseñaSegura
+      DB_NAME: users
+    entrypoint: 
+      ["sh", "-c", "sleep 5 && npm start"]
+
+  dbUsers:
+    image: postgres:15
+    container_name: postgres-db
+    restart: always
+    #ports:
+     # - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: quieroMantenerEstaContraseñaSegura
+      POSTGRES_DB: users
+    volumes:
+      - ./docker/db-game/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+  dbLogging:
+    image: postgres:15
+    container_name: postgres-dbL
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: quieroMantenerEstaContraseñaSegura
+      POSTGRES_DB: users
+    volumes:
+      - ./docker/db-logging/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+
+volumes:
+  postgres-data:
+

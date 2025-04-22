@@ -3,11 +3,11 @@ require("dotenv").config(); // Cargar variables de entorno
 
 // Crear instancia de Sequelize con los datos de conexión para LOGGIN
 const sequelize_loggin = new Sequelize(
-  process.env.DB_NAME_LOGGIN, // Nombre de la base de datos
+  process.env.DB_NAME_LOGGING, // Nombre de la base de datos
   process.env.DB_USER, // Usuario de la base de datos
   process.env.DB_PASSWORD, // Contraseña
   {
-    host: process.env.DB_HOST, // Servidor donde está la BD
+    host: process.env.DB_HOST_LOGGING, // Servidor donde está la BD
     dialect: "postgres", // Tipo de base de datos
     logging: false, // Desactiva logs de Sequelize en consola (opcional)
   }
@@ -19,7 +19,7 @@ const sequelize_game = new Sequelize(
   process.env.DB_USER, // Usuario de la base de datos
   process.env.DB_PASSWORD, // Contraseña
   {
-    host: process.env.DB_HOST, // Servidor donde está la BD
+    host: process.env.DB_HOST_USERS, // Servidor donde está la BD
     dialect: "postgres", // Tipo de base de datos
     logging: false, // Desactiva logs de Sequelize en consola (opcional)
   }
@@ -29,6 +29,7 @@ const sequelize_game = new Sequelize(
 const connectDB = async () => {
   try {
     await sequelize_loggin.authenticate();
+    await sequelize_game.authenticate();
     console.log("[ + ] Conectado a PostgreSQL");
   } catch (error) {
     console.error(" [ - ] Error conectando a PostgreSQL:", error);
