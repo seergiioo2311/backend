@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const { sequelize_game } = require("../config/db.js");
-const User = require("./User.js");
-const Game = require("./Game.js");
+const  User  = require("./User.js");
+const { Game, GAME_STATUS } = require("./Game.js");
 
 const PLAYER_STATUS = {
     ALIVE: "Alive",

@@ -2,7 +2,7 @@
 // Fichero que define las rutas de las partidas privadas
 const express = require('express');
 const { createPrivateGame, getPrivateGame, getPrivateEndPoint, deletePrivateGame, getPlayers, isReady, getAllPlayers, getLink, uploadValues, 
-      } = require('../controllers/privateGames');
+      getPrivateGamesUnfinished } = require('../controllers/privateGames');
 const router = express.Router();
 
 router.post('/create', createPrivateGame);
