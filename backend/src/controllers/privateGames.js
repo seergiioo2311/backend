@@ -14,13 +14,13 @@ const PrivateService = require('../services/privateService');
  */
 const createPrivateGame = async (req, res) => {
     try {
-        const { passwd, maxPlayers } = req.body;
+        const { passwd, maxPlayers, name } = req.body;
         
-        if(!passwd || !maxPlayers) {
-            return res.status(500).json({ message: "Contraseña y número máximo de jugadores son obligatorios" });
+        if( !name || !passwd || !maxPlayers || maxPlayers < 2) {
+            return res.status(500).json({ message: "Contraseña y número máximo de jugadores son obligatorios, además que maxPlayers debe ser menor o igual a 2" });
         }
 
-        const newPrivateGame = await PrivateService.createPrivateGame(passwd, maxPlayers);
+        const newPrivateGame = await PrivateService.createPrivateGame(name, passwd, maxPlayers);
         res.status(200).json(newPrivateGame);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -86,6 +86,8 @@ const getPrivateEndPoint = async (req, res) => {
         if (!gameId || !passwd) {
             return res.status(500).json({ message: "ID de partida privada y contraseña son obligatorios" });
         }
+        
+        console.log("ID de partida privada: ", gameId);
 
         const privateGame = await PrivateService.joinPrivateGame(gameId, passwd);
         if (privateGame) {
@@ -133,14 +135,17 @@ const deletePrivateGame = async (req, res) => {
 const getPlayers = async (req, res) => {
     try {
         const { gameId } = req.params;
+        
+        console.log("getPlayers: ", gameId);
 
         if(!gameId) {
             return res.status(500).json({ message: "ID de partida privada no proporcionada" });
         }
 
         const players = await PrivateService.getPlayers(gameId);
-        if (players) {
-            res.status(200).json(players);
+
+        if (players != null) {
+            res.status(200).json({players: players});
         } else {
             res.status(404).json({ message: "Partida privada no encontrada" });
         }
@@ -158,6 +163,7 @@ const getPlayers = async (req, res) => {
 const isReady = async (req, res) => {
     try {
         const { gameId, userId } = req.body;
+        console.log("isReady: ", gameId, userId);
 
         if(!gameId) {
             return res.status(500).json({ message: "ID de partida privada no proporcionada" });
@@ -171,7 +177,7 @@ const isReady = async (req, res) => {
         if (res === -1) {
             return res.status(404).json({ message: "Partida privada no encontrada" });
         } else if (res === null) {
-            res.status(404).json({ message: "El usuario se ha marcado que está listo" });
+            res.status(200).json({ message: "El usuario se ha marcado que está listo" });
         }
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -193,8 +199,9 @@ const getAllPlayers = async (req, res) => {
         }
 
         const players = await PrivateService.getAllPlayers(gameId);
+        console.log("getAllPlayers: ", players);
         if (players) {
-            res.status(200).json(players);
+            res.status(200).json({players: players});
         } else {
             res.status(404).json({ message: "Partida privada no encontrada" });
         }

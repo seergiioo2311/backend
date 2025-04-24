@@ -34,6 +34,7 @@ async function createPrivateGame(name, passwd, maxPlayers) {
             status: GAME_STATUS.ACTIVE,
         });
 
+
         const newPrivateGame = await Priv.create({
             id: newGame.id,
             unique_code: gameId,
@@ -253,7 +254,7 @@ async function getLink(gameId) {
             }
         });
 
-        if (res =privateGame.get('maxPlayers')) {
+        if (res >= privateGame.get('maxPlayers')) {
             throw new Error('No se puede obtener el link, hay jugadores pendientes de dar listo');
         }
 
