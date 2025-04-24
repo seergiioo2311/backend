@@ -1,0 +1,25 @@
+name: Execute Remote Script on Push
+
+on:
+  push:
+    branches: [ main ]  # Cambia a tu rama principal (main/master)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install SSH key
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Execute remote script via SSH
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+              -i ${{ secrets.SSH_PRIVATE_KEY }} \
+              github-actions@galaxy.t2dc.es \
+              "sudo bash /home/github-actions/despliegue.sh"
