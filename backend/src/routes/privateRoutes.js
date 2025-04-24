@@ -10,7 +10,7 @@ router.get('/', getPrivateGame);
 router.post('/join', getPrivateEndPoint);
 router.delete('/delete/:id', deletePrivateGame);
 router.get('/players/:gameId', getPlayers);
-router.post('/ready/:gameId/:userId', isReady);
+router.post('/ready', isReady);
 router.get('/allPlayers/:gameId', getAllPlayers);
 router.get('/link/:gameId', getLink);
 router.post('/uploadValues/:gameId/:userId/:status/:n_divisions/:x_pos/:y_pos/:score', uploadValues)
