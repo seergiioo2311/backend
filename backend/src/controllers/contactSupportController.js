@@ -1,10 +1,11 @@
 const contactSupportService = require('../services/contactSupportService');
 const User = require('../models/User');
-const transporter = require('../config/nodemailerConfig');
+const transporter = require('../config/email.js');
 const path = require('path');
 
 const newMessage = async (req, res) => {
     try {
+        console.log("Nuevo mensaje recibido:", req.body); // Mensaje de depuración
         const { title, email, name, description, type } = req.body;
         const message = await contactSupportService.newMessage(title, email, name, description, type);
         if (!message) {
@@ -183,18 +184,26 @@ const deleteMessage = async (req, res) => {
 const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
+        const { motive } = req.body;
+        const { email } = req.body;
+        console.log ("Nuevo mensaje recibido:", motive, id); // Mensaje de depuración
         if (!id) {
             return res.status(404).json({ message: "Error, id no proporcionado" });
         }
-
+        if (!motive) {
+            return res.status(404).json({ message: "Error, motivo no proporcionado" });
+        }
+        if (!email) {
+            return res.status(404).json({ message: "Error, email no proporcionado" });
+        }
         const user = await User.findOne({ where: { id: id } });
         if (!user) {
             return res.status(404).json({ message: "Error, usuario no encontrado" });
         }
-
+        console.log("hasta el mail todo bie");
         const mail = await transporter.sendMail({
             from: process.env.EMAIL_USER,
-            to: message.email,
+            to: email,
             subject: 'Eliminación de la cuenta',
             html: `
             <html lang="es">
@@ -218,6 +227,8 @@ const deleteUser = async (req, res) => {
                         <p style="color: #c0c0ff; font-size: 16px;">
                             Buenos días, ${user.username}.<br>
                             Lamentamos informarte que tu cuenta ha sido baneada y por tanto eliminada.<br>
+                            El motivo de la eliminación es el siguiente:<br>
+                            <strong>${motive}</strong><br>
                             Si crees que esto es un error, por favor contacta con el soporte.<br>
                             <br><br>
                             Si tienes alguna otra pregunta o necesitas más información, no dudes en contactarnos nuevamente.
@@ -234,18 +245,66 @@ const deleteUser = async (req, res) => {
                 }
             ]
         });
+        console.log("ID del usuario a eliminar:", id); // Mensaje de depuración
 
 
-        const res = await contactSupportService.deleteUser(id);
-        if (!res) {
+        const resp = await contactSupportService.deleteUser(id);
+        if (!resp) {
+            console.log ("Error eliminando el usuario"); // Mensaje de depuración
             return res.status(404).json({ message: "Error eliminando el usuario" });
         }
         else {
-            res.status(200).json(res);
+            console.log ("Usuario eliminado correctamente"); // Mensaje de depuración
+            res.status(200).json(resp);
         }
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 }
 
-module.exports = { newMessage, getAllMessages, getMesageById, reponseMessage, getMessagesUnresolved, getMessagesResolved, getMessagesByType, deleteMessage };
+/**
+ * @description Obtiener todos los usuarios que empiecen por el nombre de usuario
+ * @param {Request} req - Request de Express
+ * @param {Response} res - Response de Express
+ * @returns {Response} - Devuelve todos los usuarios que su username empiece por el nombre de usuario
+ * @throws {Error} - Maneja errores internos del servidor
+ */
+const getUsers = async (req, res) => {
+    try {
+        const { username } = req.params;
+        const users = await contactSupportService.getUsers(username);
+        if (!users) {
+            return res.status(404).json({ message: "Error obteniendo los usuarios" });
+        }
+        else {
+            res.status(200).json(users);
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+/**
+ * @description Obtiener el número total de usuarios registrados
+ * @param {Request} req - Request de Express
+ * @param {Response} res - Response de Express
+ * @returns {Response} - Devuelve el número total de usuarios registrados
+ * @throws {Error} - Maneja errores internos del servidor
+ */
+const getNumUsers = async (req, res) => {
+    try {
+        const numUsers = await contactSupportService.getNumUsers();
+        if (!numUsers) {
+            return res.status(404).json({ message: "Error obteniendo el número de usuarios" });
+        }
+        else {
+            console.log("Número de usuarios:", numUsers); // Mensaje de depuración
+            res.status(200).json(numUsers);
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+
+module.exports = { newMessage, getAllMessages, getMesageById, reponseMessage, getMessagesUnresolved, getMessagesResolved, getMessagesByType, deleteMessage, deleteUser, getUsers, getNumUsers };

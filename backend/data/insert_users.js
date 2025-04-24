@@ -46,6 +46,11 @@ const users = [
     email: "user9@example.com",
     password: "f25648ff",
   },
+  {
+    username: "admin",
+    email: "admin@galaxyio.es",
+    password: "34bcc452", // Administrador1!
+  }
   // Agrega más usuarios aquí si lo necesitas
 ];
 
