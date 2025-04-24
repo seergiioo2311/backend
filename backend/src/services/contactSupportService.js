@@ -2,6 +2,8 @@ const { ContactSupport, TYPE_ISSUE } = require('../models/contactSupport');
 const { Op } = require('sequelize');
 const axios = require('axios');
 const { Json } = require('sequelize/lib/utils');
+const User = require('../models/User');
+const Logging = require('../models/Loggin');
 
 
 async function newMessage(title, email, name, description, type) {
@@ -127,7 +129,8 @@ async function deleteMessage(id) {
 
 async function deleteUser(userId) {
     try {
-        const user = await ContactSupport.findOne({
+        console.log(`Eliminando usuario con ID: ${userId}`);
+        const user = await User.findOne({
             where: { id: userId }
         });
 
@@ -136,10 +139,66 @@ async function deleteUser(userId) {
         }
 
         await user.destroy();
+        console.log(`Usuario ${user.username} eliminado`);
+
         return user;
     } catch (error) {
         throw new Error(`Error eliminando usuario: ${error.message}`);
     }
 }
 
-module.exports = { newMessage, getAllMessages, getMesageById, responseMessage, getMessagesUnresolved, getMessagesResolved, getMessagesByType, deleteMessage, deleteUser };
+/**
+ * @description Obtiene todos los usuarios que su username contengan el texto introducido
+ * @param {string} username - El texto a buscar en el username
+ * @returns {Response} - Devuelve los usuarios encontrados
+ * @throws {Error} - Maneja errores internos del servidor
+ */
+async function getUsers(username) {
+    try {
+        const users = await User.findAll({
+            where: {
+                username: {
+                    [Op.like]: `%${username}%`
+                }
+            },
+            order: [['createdAt', 'DESC']]
+        });
+
+        // Añadir el email desde la tabla Logging
+        const usersWithEmail = await Promise.all(
+            users.map(async (user) => {
+                const logging = await Logging.findOne({
+                    where: { username: user.username }, // Suponiendo que Logging tiene una columna user_id
+                    attributes: ['email']
+                });
+
+                return {
+                    ...user.toJSON(),
+                    email: logging ? logging.email : null // Añadir email o null si no existe
+                };
+            })
+        );
+
+        return usersWithEmail;
+    } catch (error) {
+        console.error(error);
+        throw new Error(`Error obteniendo usuarios: ${error.message}`);
+    }
+}
+
+/**
+ * @description Obtiene el número total de usuarios registrados
+ * @returns {Response} - Devuelve el número total de usuarios	
+ * @throws {Error} - Maneja errores internos del servidor
+ */
+async function getNumUsers() {
+    try {
+        const numUsers = await User.count();
+        return numUsers;
+    } catch (error) {
+        console.error(error);
+        throw new Error(`Error obteniendo el número de usuarios: ${error.message}`);
+    }
+}
+
+module.exports = { newMessage, getAllMessages, getMesageById, responseMessage, getMessagesUnresolved, getMessagesResolved, getMessagesByType, deleteMessage, deleteUser, getUsers, getNumUsers };

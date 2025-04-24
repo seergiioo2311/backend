@@ -2,11 +2,11 @@ const { DataTypes } = require("sequelize");
 const { sequelize_loggin, connectDB, sequelize_game } = require("../config/db.js");
 
 const TYPE_ISSUE = {
-    TECHNICAL_PROBLEM: "technical_problem",
-    ACCOUNT_PROBLEM: "account_problem",
-    BUG: "bug",
-    PAYMENT_PROBLEM: "payment_problem",
-    OTHER: "other"
+    SOPORTE_TECNICO: "soporte-tecnico",
+    DENUNCIAR_JUGADOR: "denunciar-jugador",
+    PROBLEMAS_CUENTA: "problemas-cuenta",
+    SUGERENCIAS: "sugerencias",
+    OTROS: "otros"
 };
 
 const ContactSupport = sequelize_game.define(
@@ -51,4 +51,4 @@ const ContactSupport = sequelize_game.define(
     }
 );
 
-module.exports = ContactSupport;
+module.exports = { ContactSupport, TYPE_ISSUE };

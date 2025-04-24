@@ -101,6 +101,10 @@ app.use("/shop", shopRoutes); // Asegúrate de que las rutas de la tienda estén
 const seasonPassRoutes = require("./routes/seasonPassRoutes");
 app.use("/season-pass", seasonPassRoutes);
 
+// Rutas del contact support
+const contactSupportRoutes = require("./routes/contactSupportRoutes");
+app.use("/contact-support", contactSupportRoutes);
+
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);

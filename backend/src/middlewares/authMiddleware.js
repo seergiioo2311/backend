@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const rutasPublicas = ["/auth/sign-in", "/auth/sign-up", "/auth/forgot-password", "/auth/reset-password", "/auth/refresh-token", "/achievements/update-achievement" ]
+const rutasPublicas = ["/auth/sign-in", "/auth/sign-up", "/auth/forgot-password", "/auth/reset-password", "/auth/refresh-token", "/achievements/update-achievement", "/contact-support/new" ]
 
 /**
  * @description Middleware para verificar si el usuario está autenticado 
