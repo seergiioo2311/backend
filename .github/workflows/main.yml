@@ -26,4 +26,4 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key \
               github-actions@galaxy.t2dc.es \
-              "sudo /bin/bash /home/github-actions/despliegue.sh"
+              "sudo /home/github-actions/despliegue.sh"
