@@ -245,7 +245,7 @@ async function isReady(gameId, userId) {
 }
 
 /**
- * @description Obtiene todos los jugadores de una partida privada
+ * @description Obtiene todos los jugadores de una partida privada.
  * @param {Number} gameId - Id de la partida privada
  * @returns {Json} - Devuelve los jugadores de la partida privada y error en caso de error
  */
