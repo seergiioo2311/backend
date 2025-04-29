@@ -37,23 +37,28 @@ const Playing = sequelize_game.define(
         },
         status: {
             type: DataTypes.ENUM(...Object.values(PLAYER_STATUS)),
-            allowNull: false
+            allowNull: false,
+            defaultValue: PLAYER_STATUS.WAITING
         },
         n_divisions: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: false,
+            defaultValue: 0
         },
         x_position: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: false,
+            defaultValue: 0
         },
         y_position: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: false,
+            defaultValue: 0
         },
         score: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: false,
+            defaultValue: 0
         }
     }, 
     {

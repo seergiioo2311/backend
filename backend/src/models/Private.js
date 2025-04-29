@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 const { sequelize_loggin, connectDB, sequelize_game } = require("../config/db.js");
 const  { Game } = require("./Game.js");
+const User  = require("./User.js");
 
 const Private = sequelize_game.define(
     "Private", 
@@ -37,8 +38,18 @@ const Private = sequelize_game.define(
             allowNull: false
         },
         unique_code: { // Codigo el cual el usuario podrá compartir para obtener la partida privada
-            type: DataTypes.UUID,
+            type: DataTypes.STRING,
             allowNull: false
+        },
+        leader: { // Usuario que ha creado la partida privada
+            type: DataTypes.UUID,
+            allowNull: false,
+            references: {
+                model: User,
+                key: "id"
+            },
+            onDelete: "CASCADE",
+            onUpdate: "CASCADE"
         },
     }, 
     {
