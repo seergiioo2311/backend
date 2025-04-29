@@ -6,16 +6,18 @@ const axios = require('axios');
 const { Json } = require('sequelize/lib/utils');
 const { sequelize_game } = require('../config/db');
 const { v4: uuidv4 } = require('uuid'); 
+const User = require('../models/User');
 
 
 /**
  * @description Crea una partida privada nueva
  * @param {string} passwd - Contraseña de la partida privada
  * @param {number} maxPlayers - Número máximo de jugadores
+ * @param {uuid} idLeader - Id del jugador que crea la partida privada
  * @returns {Json} - Devuelve la partida privada creada
  * @throws {Error} - Maneja errores internos del servidor
  */
-async function createPrivateGame(name, passwd, maxPlayers) {
+async function createPrivateGame(name, passwd, maxPlayers, idLeader) {
     try{
         //Esta funcion está aun por implementar correctamente, el esqueleto basico es correcto, pero necesitaremos saber los endpoints reales para así, tener esto funcionando correctamente
         //Obtenemos el endpoint donde se ejecutará la partida
@@ -23,16 +25,18 @@ async function createPrivateGame(name, passwd, maxPlayers) {
         //const link1 = response.data.gameEndpoint; //el nombre de esta variable tambien esta por definir, ya que depende de la respuesta del equipo de game_server
         // TODO: HAY QUE ELIMINAR ESTA LINEA, ESTO ES SOLO PARA TESTING
         const link = 'http://localhost:9091'; // FIXME: Este endpoint está aun por definir ya que lo proporciona el equipo de game_server, el actual esta proporcionado por el equipo
-        const gameId = uuidv4(); //Generamos un id único para la partida privada
+        const gameId = uuidv4().slice(0, 6);; //Generamos un id único para la partida privada
         
         if(!link) {
             throw new Error('No se pudo obtener el endpoint de la partida privada');
         }
 
+        console.log("Hola mundo");
 
         const newGame = await Game.create({
             status: GAME_STATUS.ACTIVE,
         });
+        console.log("game id:", newGame.id);
 
 
         const newPrivateGame = await Priv.create({
@@ -42,10 +46,11 @@ async function createPrivateGame(name, passwd, maxPlayers) {
             name,
             link,
             maxPlayers,
+            leader: idLeader,
             currentPlayers: 0
         });
 
-        return { link: newPrivateGame.link, id: newPrivateGame.unique_code };
+        return { link: newPrivateGame.link, id: newGame.id };
     }
     catch (error) {
         console.error(error);
@@ -58,12 +63,19 @@ async function createPrivateGame(name, passwd, maxPlayers) {
  * @returns {Json} - Devuelve la partida privada y error en caso de error
  * @throws {Error} - Maneja errores internos del servidor
  */
-async function getPrivateGames() {
+async function getPrivateGames(gameId, passwd) {
     try {
-        const privateGames = await Priv.findAll({
-            attributes: ['id', 'name', 'maxPlayers', 'currentPlayers']
+        const privateGame = await Priv.findOne({
+            where: {
+                id: gameId,
+                passwd: passwd
+            }
         });
-        return { "privateGames": privateGames };
+
+        if (!privateGame) {
+            return null;
+        }
+        return { privateGame: privateGame };
     } catch (error) {
         throw new Error(`Error obteniendo partidas privadas: ${error.message}`);
     }
@@ -76,7 +88,7 @@ async function getPrivateGames() {
  * @returns {Json} - Devuelve la partida privada y error en caso de error
  * @throws {Error} - Maneja errores internos del servidor
  */
-async function joinPrivateGame(gameId, passwd) {
+async function joinPrivateGame(gameId, passwd, userId) {
     try {
         const privateGame = await Priv.findOne({
             where: {
@@ -85,7 +97,31 @@ async function joinPrivateGame(gameId, passwd) {
             }
         });
 
+        //incrementamos el número de jugadores de la partida privada
+        if (privateGame) {
+            privateGame.currentPlayers += 1;
+            await privateGame.save();
+        }
+
         if (!privateGame) {
+            console.log("No se ha encontrado la partida privada o la contraseña es incorrecta");
+            return null;
+        }
+
+        const playing = await Playing.create({
+            id_user: userId,
+            id_game: gameId,
+            status: PLAYER_STATUS.WAITING,
+            n_divisions: 0,
+            x_position: 0,
+            y_position: 0,
+            score: 0
+        })
+
+        console.log("jugador:", playing.id_user, "partida privada:", playing.id_game, "status:", playing.status, "n_divisions:", playing.n_divisions, "x_position:", playing.x_position, "y_position:", playing.y_position, "score:", playing.score);
+
+        if (!playing) {
+            console.log("No se ha podido unir a la partida privada");
             return null;
         }
 
@@ -181,7 +217,6 @@ async function isReady(gameId, userId) {
         const privateGame = await Priv.findOne({
             where: {
                 id: gameId,
-                userId: userId
             }
         });
 
@@ -196,6 +231,10 @@ async function isReady(gameId, userId) {
             }
         });
 
+        if (!playing) {
+            return -1;
+        }
+
         playing.status = PLAYER_STATUS.READY;
         await playing.save();
 
@@ -206,19 +245,37 @@ async function isReady(gameId, userId) {
 }
 
 /**
- * @description Obtiene todos los jugadores de una partida privada
+ * @description Obtiene todos los jugadores de una partida privada.
  * @param {Number} gameId - Id de la partida privada
  * @returns {Json} - Devuelve los jugadores de la partida privada y error en caso de error
  */
 async function getAllPlayers(gameId) {
     try {
-        const players = await Playing.findAll({
+        const jugadores = await Playing.findAll({
             where: {
                 id_game: gameId
             }
         });
 
-        return { userId: players.id_user, status: players.status, n_divisions: players.n_divisions, x_pos: players.x_position, y_pos: players.y_position, score: players.score };
+        if (!jugadores) {
+            throw new Error('No se han encontrado jugadores en la partida privada');
+        }
+
+        const players = await Promise.all(jugadores.map(async (player) => {
+            const user = await User.findOne({
+                where: {
+                    id: player.id_user
+                }
+            });
+            return {
+                id: user.id,
+                name: user.username,
+                status: player.status,
+            };
+        }
+        ));
+
+        return { players };
     } catch (error) {
         throw new Error(`Error obteniendo jugadores de la partida privada: ${error.message}`);
     }
@@ -254,7 +311,9 @@ async function getLink(gameId) {
             }
         });
 
-        if (res >= privateGame.get('maxPlayers')) {
+        console.log("res:", res, "currentPlayers:", privateGame.currentPlayers);
+
+        if (res < privateGame.currentPlayers) {
             throw new Error('No se puede obtener el link, hay jugadores pendientes de dar listo');
         }
 
@@ -301,28 +360,32 @@ async function uploadValues(gameId, userId, status, n_divisions, x_pos, y_pos, s
     }
 }
 
+/**
+ * @description Obtiene todas las partidas privadas pausadas de un usuario
+ * @param {Number} userId - Id del usuario
+ * @returns {Json} - Devuelve todas las partidas privadas pausadas del usuario y error en caso de error
+ */
 async function getPrivateGamesUnfinished(userId) {
     try {
         const status = GAME_STATUS.PAUSED;
-        const privateGames = sequelize_game.query(
+
+        // Consulta SQL personalizada para obtener las partidas privadas pausadas del usuario
+        const privateGames = await sequelize_game.query(
             `
-            SELECT pr.id, pr.name, pr.passwd, pr.maxPlayers, pr.createdAt
-            FROM "Users" p, "Privates" pr
-            INNER JOIN "Playings" pl ON p.id = pl.id_user AND pl.id_game = pr.id
-            WHERE p.id = :userId AND
-                pr.id = (
-                    SELECT g.id
-                    FROM "Games" g
-                    WHERE g.id = pr.id AND g.status = :status
-                )
-            `
-            ,{
+            SELECT 
+                *
+            FROM "Privates" pr
+            INNER JOIN "Playings" pl ON pl.id_game = pr.id
+            INNER JOIN "Games" g ON g.id = pr.id
+            WHERE pl.id_user = :userId AND g.status = :status
+            `,
+            {
                 replacements: { userId, status },
                 type: sequelize_game.QueryTypes.SELECT
             }
         );
 
-        if (!privateGames) {
+        if (!privateGames || privateGames.length === 0) {
             return null;
         }
 
@@ -332,4 +395,171 @@ async function getPrivateGamesUnfinished(userId) {
     }
 }
 
-module.exports = { createPrivateGame, getPrivateGames, joinPrivateGame, deletePrivateGame, getPlayers, isReady, getAllPlayers, getLink, uploadValues, getPrivateGamesUnfinished };
+/**
+ * @description Obtiene una partida privada por su código
+ * @param {string} unique_id - Id de la partida privada
+ * @returns {Json} - Devuelve la partida privada y error en caso de error
+ */
+async function getGameWithId(gameCode) {
+    try {
+        const trimmedGameCode = gameCode.trim();
+        const privateGame = await Priv.findOne({
+            where: {
+                unique_code: {
+                    [Op.iLike]: trimmedGameCode
+                }
+            }
+        });
+
+        if (!privateGame) {
+            throw new Error('Partida privada no encontrada');
+        }
+
+        return privateGame;
+    } catch (error) {
+        throw new Error(`Error obteniendo la partida privada: ${error.message}`);
+    }
+}
+
+/**
+ * @description Elimina un jugador de una partida privada
+ * @param {string} gameId - Id de la partida privada
+ * @param {string} userId - Id del jugador
+ * @returns {Json} - Devuelve null si se ha eliminado correctamente, -1 si no se ha encontrado la partida privada o el jugador
+ * @throws {Error} - Maneja errores internos del servidor
+ */
+async function deleteUserFromPrivateGame(gameId, userId) {
+    try {
+        const privateGame = await Priv.findOne({
+            where: {
+                id: gameId
+            }
+        });
+
+        if (!privateGame) {
+            return -1;
+        }
+
+        const player = await Playing.findOne({
+            where: {
+                id_game: gameId,
+                id_user: userId
+            }
+        });
+
+        if (!player) {
+            return -1;
+        }
+
+        await player.destroy();
+        privateGame.currentPlayers -= 1;
+        await privateGame.save();
+
+        return null;
+    } catch (error) {
+        throw new Error(`Error eliminando jugador de la partida privada: ${error.message}`);
+    }
+}
+
+/**
+ * @description Inicia una partida privada
+ * @param {string} gameId - Id de la partida privada
+ * @returns {Json} - Devuelve null si se ha iniciado correctamente, -1 si no se ha encontrado la partida privada 
+ * @throws {Error} - Maneja errores internos del servidor
+ */
+async function startPrivateGame(gameId) {
+    try {
+        const privateGame = await Priv.findOne({
+            where: {
+                id: gameId
+            }
+        });
+
+        if (!privateGame) {
+            return -1;
+        }
+
+        const game = await Game.findOne({
+            where: {
+                id: gameId
+            }
+        });
+
+        if (!game) {
+            return -1;
+        }
+
+        game.status = GAME_STATUS.ACTIVE;
+        await game.save();
+
+        // Poner todos los jugadores a "ALIVE"
+        const players = await Playing.findAll({
+            where: {
+                id_game: gameId
+            }
+        });
+
+        await Promise.all(players.map(async (player) => {
+            player.status = PLAYER_STATUS.ALIVE;
+            await player.save();
+        }));
+
+        return null;
+    } catch (error) {
+        throw new Error(`Error iniciando partida privada: ${error.message}`);
+    }
+}
+
+/**
+ * @description Pausa una partida privada
+ * @param {string} gameId - Id de la partida privada
+ * @returns {Json} - Devuelve null si se ha pausado correctamente, -1 si no se ha encontrado la partida privada 
+ * @throws {Error} - Maneja errores internos del servidor
+ */
+async function pausePrivateGame(gameId) {
+    try {
+        const privateGame = await Priv.findOne({
+            where: {
+                id: gameId
+            }
+        });
+
+        if (!privateGame) {
+            return -1;
+        }
+
+        const game = await Game.findOne({
+            where: {
+                id: gameId
+            }
+        });
+
+        if (!game) {
+            return -1;
+        }
+
+        game.status = GAME_STATUS.PAUSED;
+        await game.save();
+
+        // Poner todos los jugadores a "WAITING"
+        const players = await Playing.findAll({
+            where: {
+                id_game: gameId
+            }
+        });
+
+        await Promise.all(players.map(async (player) => {
+            player.status = PLAYER_STATUS.WAITING;
+            await player.save();
+        }));
+
+        return null;
+    } catch (error) {
+        throw new Error(`Error pausando partida privada: ${error.message}`);
+    }
+}
+
+
+module.exports = { createPrivateGame, getPrivateGames, joinPrivateGame, deletePrivateGame, getPlayers, isReady, 
+    getAllPlayers, getLink, uploadValues, getPrivateGamesUnfinished, getPrivateGameWithId, 
+    getGameWithId, deleteUserFromPrivateGame, startPrivateGame, pausePrivateGame };
