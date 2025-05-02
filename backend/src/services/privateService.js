@@ -324,39 +324,84 @@ async function getLink(gameId) {
 }
 
 /**
- * @description Actualiza los valores de un determinado jugador para una determinada partida
+ * @description Actualiza todos los valores de una partida privada
  * @param {Number} gameId - Id de la partida privada
- * @param {Number} userId - Id del usuario
- * @param {Number} status - Nuevo estado del usuario
- * @param {Number} n_divisions - Nuevo número de divisiones del usuario
- * @param {Number} x_pos - Nueva posición en el eje X del usuario
- * @param {Number} y_pos - Nueva posición en el eje Y del usuario
- * @param {Number} score - Nueva puntuación del usuario
- * @returns - Devuelve null, en el caso de que se haya actualizado correctamente, o -1, en el caso de que no haya encontrado al usuario, o lanza un error en caso de error
+ * @param {} values
+ * @returns - Devuelve null, en el caso de que se haya actualizado correctamente, o -1, en el caso de que no haya encontrado la partida privada, o lanza un error en caso de error
  */
-async function uploadValues(gameId, userId, status, n_divisions, x_pos, y_pos, score) {
+async function uploadValues(gameId, values) {
     try {
-        const player = await Playing.findOne({
+        const privateGame = await Priv.findOne({
             where: {
-                id_game: gameId,
-                id_user: userId
+                id: gameId
             }
         });
 
-        if (!player) {
-            throw new Error('No se ha encontrado al usuario');
+        if (!privateGame) {
+            return -1;
         }
 
-        player.status = status;
-        player.n_divisions = n_divisions;
-        player.x_position = x_pos;
-        player.y_position = y_pos;
-        player.score = score;
+        // Pero que hay un values por cada jugador, entonces hay que recorrer los jugadores y actualizar los valores de cada uno
+        const players = await Playing.findAll({
+            where: {
+                id_game: gameId
+            }
+        });
 
-        await player.save();
+        await Promise.all(players.map(async (player) => {
+            const playerValues = values.find((value) => value.id_user === player.id_user);
+            if (playerValues) {
+                player.x_position = playerValues.x_position;
+                player.y_position = playerValues.y_position;
+                player.n_divisions = playerValues.n_divisions;
+                player.score = playerValues.score;
+                await player.save();
+            }
+        }
+        ));
+
         return null;
     } catch (error) {
         throw new Error(`Error actualizando los valores del usuario`);
+    }
+}
+
+/**
+ * @description Obtiene los valores de una partida privada
+ * @param {Number} gameId - Id de la partida privada
+ * @returns {Json} - Devuelve los valores de la partida privada y error en caso de error
+ */
+async function getValues(gameId) {
+    try {
+        const privateGame = await Priv.findOne({
+            where: {
+                id: gameId
+            }
+        });
+
+        if (!privateGame) {
+            throw new Error('Partida privada no encontrada');
+        }
+
+        const players = await Playing.findAll({
+            where: {
+                id_game: gameId
+            }
+        });
+
+        const values = players.map((player) => {
+            return {
+                id_user: player.id_user,
+                x_position: player.x_position,
+                y_position: player.y_position,
+                n_divisions: player.n_divisions,
+                score: player.score
+            };
+        });
+
+        return values;
+    } catch (error) {
+        throw new Error(`Error obteniendo los valores de la partida privada: ${error.message}`);
     }
 }
 
@@ -561,5 +606,5 @@ async function pausePrivateGame(gameId) {
 
 
 module.exports = { createPrivateGame, getPrivateGames, joinPrivateGame, deletePrivateGame, getPlayers, isReady, 
-    getAllPlayers, getLink, uploadValues, getPrivateGamesUnfinished, getPrivateGameWithId, 
+    getAllPlayers, getLink, uploadValues, getValues, getPrivateGamesUnfinished, getPrivateGameWithId, 
     getGameWithId, deleteUserFromPrivateGame, startPrivateGame, pausePrivateGame };

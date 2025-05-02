@@ -2,7 +2,7 @@
 // Fichero que define las rutas de las partidas privadas
 const express = require('express');
 const { createPrivateGame, getPrivateGame, joinPrivateGame, deletePrivateGame, getPlayers, isReady, getAllPlayers, getLink, uploadValues, 
-      getPrivateGamesUnfinished, getGameWithCode, deleteUserFromPrivateGame,
+      getValues, getPrivateGamesUnfinished, getGameWithCode, deleteUserFromPrivateGame,
       startPrivateGame, pausePrivateGame } = require('../controllers/privateGames');
 const router = express.Router();
 
@@ -14,7 +14,8 @@ router.get('/players/:gameId', getPlayers);
 router.post('/ready', isReady);
 router.get('/allPlayers/:gameId', getAllPlayers);
 router.get('/link/:gameId', getLink);
-router.post('/uploadValues/:gameId/:userId/:status/:n_divisions/:x_pos/:y_pos/:score', uploadValues)
+router.post('/uploadValues/:gameId', uploadValues)
+router.get('/getValues/:gameId', getValues); 
 router.get('/unfinished/:userId', getPrivateGamesUnfinished);
 router.get('/getGameWithCode/:gameCode', getGameWithCode);
 router.delete('/deleteUserFromPrivate/:gameId/:userId', deleteUserFromPrivateGame); // No se si es necesario, pero lo dejo por si acaso
