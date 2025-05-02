@@ -237,27 +237,57 @@ const getLink = async (req, res) => {
 }
 
 /**
- * @description Actualiza los valores de un determinado jugador para una determinada partida
+ * @description Actualiza los valores para todos los jugadores de una partida privada
  * @param {Request} req - Request de Express
  * @param {Response} res - Response de Express
  * @returns {Response} - Devuelve mensaje de confirmación o de error
  */
 const uploadValues = async(req, res) => {
     try {
-        const { gameId, userId, status, n_divisions, x_pos, y_pos, score} = req.body;
+        const { gameId } = req.params;
+        const { values } = req.body;
 
         if (!gameId) {
-            return res.status(500).json({ message: "Id de la partida privada no proporcionado" });
+            return res.status(500).json({ message: "ID de partida privada no proporcionada" });
         }
 
-        if (!userId) {
-            return res.status(500).json({ message: "Id del usuario no proporcionado" });
+        if (!values) {
+            return res.status(500).json({ message: "Valores no proporcionados" });
         }
-    
-        const res = await PrivateService.uploadValues(gameId, userId, status, n_divisions, x_pos, y_pos, score);
-        res.status(200).json({ message: "Se han actualizado correctamente los valores" });
+
+        const result = await PrivateService.uploadValues(gameId, values);
+        if (result === -1) {
+            return res.status(404).json({ message: "No se ha encontrado la partida privada" });
+        } else {
+            res.status(200).json({ message: "Valores actualizados correctamente" });
+        }
     } catch (error) {
         res.status(404).json({ message: error.message });
+    }
+}
+
+/**
+ * @description Obtiene todos los valores para todos los jugadores de una partida privada
+ * @param {Request} req - Request de Express
+ * @param {Response} res - Response de Express
+ * @returns {Response} - Devuelve mensaje de confirmación o de error
+ */
+const getValues = async(req, res) => {
+    try {
+        const { gameId } = req.params;
+
+        if (!gameId) {
+            return res.status(500).json({ message: "ID de partida privada no proporcionada" });
+        }
+
+        const values = await PrivateService.getValues(gameId);
+        if (values === -1) {
+            return res.status(404).json({ message: "No se ha encontrado la partida privada" });
+        } else {
+            res.status(200).json(values);
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 }
 
@@ -396,5 +426,5 @@ const pausePrivateGame = async (req, res) => {
 
 
 module.exports = { createPrivateGame, getPrivateGame, joinPrivateGame, deletePrivateGame, 
-    getPlayers, isReady, getAllPlayers, getLink, uploadValues, getPrivateGamesUnfinished, 
+    getPlayers, isReady, getAllPlayers, getLink, uploadValues, getValues, getPrivateGamesUnfinished, 
     getGameWithCode, deleteUserFromPrivateGame, startPrivateGame, pausePrivateGame };
