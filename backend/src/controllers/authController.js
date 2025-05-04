@@ -171,6 +171,9 @@ const sign_in = async (req, res) => {
 
         const user = await User.findOne({ where: { username: loggin.username } });
 
+        user.lastConnection = new Date(); // Actualiza la última conexión del usuario
+        await user.save(); // Guarda los cambios en la base de datos
+
         if (!user) {
             return res.status(401).json({ message: 'Usuario o contraseña incorrectos' });
         }
@@ -351,7 +354,7 @@ const refresh_token = async (req, res) => {
       if (err) return res.status(403).json({ message: "Refresh token inválido" });
 
       // Buscar al usuario en la base de datos
-      const user = await Loggin.findOne({ where: { id: decoded.id } });
+      const user = await Loggin.findOne({ where: { email: decoded.email } });
 
       if (!user || user.refreshToken !== refreshToken) {
         return res.status(403).json({ message: "Refresh token no válido o caducado" });

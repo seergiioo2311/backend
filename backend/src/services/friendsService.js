@@ -174,23 +174,20 @@ async function addSolicitud(userID1, userID2) {
  */
 async function denySolicitud(userID1, userID2) {
   try {
-    // Actualizar la relación de amistad de userID1 y userID2
-    const updatedFriend1 = await Friends.update(
-      { status: "Denied" }, // Actualizamos el status a true
-      {
-        where: {
-          id_friend_1: userID2,
-          id_friend_2: userID1,
-        },
+    // Eliminar la solicitud de amistad entre userID1 y userID2
+    const deletedFriend = await Friends.destroy({
+      where: {
+        id_friend_1: userID2,
+        id_friend_2: userID1,
       }
-    );
+    });
 
-    // Si no se actualizó ningún registro, significa que no existen relaciones
-    if (updatedFriend1[0] === 0) {
-      throw new Error("La relacione de amistad no existe.");
+    // Si no se eliminó ningún registro, significa que no existe la solicitud
+    if (deletedFriend === 0) {
+      throw new Error("La solicitud de amistad no existe.");
     }
 
-    return { message: "Amistad añadida correctamente." };
+    return { message: "Solicitud de amistad rechazada correctamente." };
   } catch (error) {
     return { message: error.message };
   }
