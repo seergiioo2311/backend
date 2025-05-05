@@ -1,5 +1,5 @@
 const express = require('express');
-const {get_messages, add_message, has_not_viewed_messages} = require('../controllers/messageController');
+const {get_messages, add_message, has_not_viewed_messages, get_last_message} = require('../controllers/messageController');
 
 const router = express.Router();
 
