@@ -129,5 +129,31 @@ async function checkUser(userId) {
   }
 }
 
+/**
+ * @description Obtiene el último mensaje entre dos usuarios 
+ * @param {uuid} userIdEmisor - El id del usuario emisor
+ * @param {uuid} userIdReceptor - El id del usuario receptor
+ * @returns {Json} - Un objeto con el último mensaje
+ * @throws {Error} - Si no se encuentra o ocurre algún error
+ */
+async function get_last_message(userIdEmisor, userIdReceptor) {
+  try {
+    const lastMessage = await Message.findOne({
+      where: {
+        [Op.or]: [
+          { id_friend_emisor: userIdEmisor, id_friend_receptor: userIdReceptor },
+          { id_friend_emisor: userIdReceptor, id_friend_receptor: userIdEmisor }
+        ]
+      },
+      order: [['date', 'DESC']]
+    });
 
-module.exports = { getMessages, addMessage, hasNotViewedMessages, checkUser,  };
+    return lastMessage;
+  } catch (error) {
+    console.error("❌ Error al obtener el último mensaje:", error);
+    return null;
+  }
+}
+
+
+module.exports = { getMessages, addMessage, hasNotViewedMessages, checkUser,  get_last_message};
