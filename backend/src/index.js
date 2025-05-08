@@ -11,6 +11,7 @@ const { insertFriends } = require("../data/insert_friends.js");
 const { triggersSeasonPass } = require("../data/triggers/triggers-season-pass.js");
 
 const authMiddleware = require("./middlewares/authMiddleware");
+const messageService = require("./services/messagesService.js")
 
 require("dotenv").config();
 
@@ -47,6 +48,115 @@ const sync_database = async () => {
   }
   
 };
+
+const http = require("http");
+const jwt = require("jsonwebtoken");
+const WebSocket = require("ws"); // Add this import
+const wss = new WebSocket.Server({ port: 8080 });
+
+console.log('Servidor WebSocket iniciado en puerto 8080');
+
+// Colección para almacenar conexiones activas
+const connections = new Map();
+
+// Crear servidor HTTP explícitamente
+
+// Manejo de conexiones WebSocket
+wss.on('connection', (ws, req) => {
+  // Obtener parámetros de la URL
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const userId = url.searchParams.get('userId');
+  const friendId = url.searchParams.get('friendId');
+  const token = url.searchParams.get('token');
+  
+  // Validar token si es necesario (opcional aquí ya que se puede validar en un middleware)
+  
+  // Guardar la conexión
+  if (!connections.has(userId)) {
+    connections.set(userId, new Map());
+  }
+  connections.get(userId).set(friendId, ws);
+  
+  console.log(`Usuario ${userId} conectado al chat con ${friendId}`);
+
+  // Manejar mensajes recibidos
+  ws.on('message', (message) => {
+    try {
+      const msgData = JSON.parse(message.toString());
+      
+      // Guardar el mensaje en la base de datos
+      saveMessageToDatabase(msgData);
+      
+      // Enviar mensaje al destinatario si está conectado
+      if (connections.has(msgData.id_friend_receptor)) {
+        const recipientWs = connections.get(msgData.id_friend_receptor).get(msgData.id_friend_emisor);
+        if (recipientWs && recipientWs.readyState === WebSocket.OPEN) {
+          recipientWs.send(message.toString());
+        }
+      }
+      
+    } catch (error) {
+      console.error('Error al procesar mensaje:', error);
+    }
+  });
+  
+  // Manejar desconexión
+  ws.on('close', () => {
+    if (connections.has(userId)) {
+      connections.get(userId).delete(friendId);
+      if (connections.get(userId).size === 0) {
+        connections.delete(userId);
+      }
+    }
+    console.log(`Usuario ${userId} desconectado del chat con ${friendId}`);
+  });
+});
+
+// Función para guardar mensajes en la base de datos
+async function saveMessageToDatabase(message) {
+  try {
+    // Verificar que el mensaje tenga formato adecuado
+    if (!message || typeof message !== 'object') {
+      // Intentar parsear si es una cadena
+      if (typeof message === 'string') {
+        try {
+          message = JSON.parse(message);
+        } catch (parseError) {
+          console.error('Error al parsear el mensaje JSON:', parseError);
+          return { error: 'Formato de mensaje inválido' };
+        }
+      } else {
+        console.error('Formato de mensaje inválido');
+        return { error: 'Formato de mensaje inválido' };
+      }
+    }
+
+    // Extraer los campos necesarios del mensaje
+    const { id, id_friend_emisor, id_friend_receptor, content, date } = message;
+    
+    // Validar que todos los campos requeridos estén presentes
+    if (!id || !id_friend_emisor || !id_friend_receptor || !content || !date) {
+      console.error('Campos requeridos faltantes en el mensaje', message);
+      return { error: 'Campos requeridos faltantes en el mensaje' };
+    }
+
+    console.log('Guardando mensaje en la base de datos:', message);
+    
+    // Llamar a la función addMessage para guardar el mensaje en la base de datos
+    const result = await messageService.addMessage(
+      id,
+      id_friend_emisor,
+      id_friend_receptor,
+      content,
+      date
+    );
+    
+    return result;
+  } catch (error) {
+    console.error('Error al guardar mensaje en la base de datos:', error);
+    return { error: error.message };
+  }
+}
 
 connectDB().then(sync_database);
 
