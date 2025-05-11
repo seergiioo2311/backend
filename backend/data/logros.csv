@@ -3,11 +3,11 @@ Elimina 20 jugadores,playersEliminated,200,20
 Elimina 30 jugadores,playersEliminated,300,30
 Elimina 40 jugadores,playersEliminated,400,40
 Elimina 50 jugadores,playersEliminated,500,50
-Juega 10 horas,hoursPlayed,100,10
-Juega 20 horas,hoursPlayed,200,20
-Juega 30 horas,hoursPlayed,300,30
-Juega 40 horas,hoursPlayed,400,40
-Juega 50 horas,hoursPlayed,500,50
+Juega 10 horas,timePlayed,100,36000
+Juega 20 horas,timePlayed,200,72000
+Juega 30 horas,timePlayed,300,108000
+Juega 40 horas,timePlayed,400,144000
+Juega 50 horas,timePlayed,500,180000
 Alcanza 250 puntos,maxScore,100,250
 Alcanza 500 puntos,maxScore,200,500
 Alcanza 1000 puntos,maxScore,300,1000
