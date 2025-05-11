@@ -389,6 +389,11 @@ async function getValues(gameId) {
             }
         });
 
+        // si es la primera vez de la partida, enviar un array vacio
+        if (privateGame.isFirstGame) {
+            return [];
+        }
+
         const values = players.map((player) => {
             return {
                 id_user: player.id_user,
@@ -535,6 +540,7 @@ async function startPrivateGame(gameId) {
         }
 
         game.status = GAME_STATUS.ACTIVE;
+        game.isFirstGame = false;
         await game.save();
 
         // Poner todos los jugadores a "ALIVE"
