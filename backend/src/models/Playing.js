@@ -48,17 +48,18 @@ const Playing = sequelize_game.define(
         x_position: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            defaultValue: 0
+            defaultValue: Math.floor(Math.random() * 10000) + 1
+
         },
         y_position: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            defaultValue: 0
+            defaultValue: Math.floor(Math.random() * 10000) + 1
         },
         score: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            defaultValue: 0
+            defaultValue: 50
         }
     }, 
     {
