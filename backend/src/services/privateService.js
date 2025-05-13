@@ -353,7 +353,7 @@ async function uploadValues(gameId, values) {
             if (playerValues) {
                 player.x_position = playerValues.x_position;
                 player.y_position = playerValues.y_position;
-                player.n_divisions = playerValues.n_divisions;
+                //player.n_divisions = playerValues.n_divisions;
                 player.score = playerValues.score;
                 await player.save();
             }
@@ -399,7 +399,6 @@ async function getValues(gameId) {
                 id_user: player.id_user,
                 x_position: player.x_position,
                 y_position: player.y_position,
-                n_divisions: player.n_divisions,
                 score: player.score
             };
         });
