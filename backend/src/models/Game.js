@@ -21,10 +21,6 @@ const Game = sequelize_game.define (
             type: DataTypes.ENUM(...Object.values(GAME_STATUS)),
             allowNull: false
         },
-        isFirstGame: {
-            type: DataTypes.BOOLEAN,
-            allowNull: true
-        },
     }, 
     {
         timestamps: true
