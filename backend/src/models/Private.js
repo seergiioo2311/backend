@@ -51,6 +51,10 @@ const Private = sequelize_game.define(
             onDelete: "CASCADE",
             onUpdate: "CASCADE"
         },
+        isFirstGame: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true
+        },
     }, 
     {
         timestamps: true
