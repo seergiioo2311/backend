@@ -380,11 +380,34 @@ async function uploadValues(gameId, values) {
             );
             
             if (playerValues) {
-                console.log("Updating player:", player.id_user);
-                // Actualizar considerando ambas estructuras posibles
-                player.x_position = playerValues.x_position || playerValues.X || 0;
-                player.y_position = playerValues.y_position || playerValues.Y || 0;
-                player.score = playerValues.score || playerValues.Score || 0;
+                console.log("Updating player:", player.id_user, "with values:", JSON.stringify(playerValues));
+                
+                // Verificar cada valor explícitamente para evitar valores 0
+                if (playerValues.x_position !== undefined) {
+                    player.x_position = playerValues.x_position;
+                } else if (playerValues.X !== undefined) {
+                    player.x_position = playerValues.X;
+                }
+                
+                if (playerValues.y_position !== undefined) {
+                    player.y_position = playerValues.y_position;
+                } else if (playerValues.Y !== undefined) {
+                    player.y_position = playerValues.Y;
+                }
+                
+                if (playerValues.score !== undefined) {
+                    player.score = playerValues.score;
+                } else if (playerValues.Score !== undefined) {
+                    player.score = playerValues.Score;
+                }
+                
+                console.log("Player values after update:", {
+                    id_user: player.id_user,
+                    x_position: player.x_position,
+                    y_position: player.y_position,
+                    score: player.score
+                });
+                
                 await player.save();
                 console.log("Player updated successfully");
             } else {
@@ -406,6 +429,8 @@ async function uploadValues(gameId, values) {
  */
 async function getValues(gameId) {
     try {
+        console.log("getValues called with gameId:", gameId);
+        
         const privateGame = await Priv.findOne({
             where: {
                 id: gameId
@@ -413,6 +438,7 @@ async function getValues(gameId) {
         });
 
         if (!privateGame) {
+            console.log("Private game not found with id:", gameId);
             throw new Error('Partida privada no encontrada');
         }
 
@@ -421,29 +447,35 @@ async function getValues(gameId) {
                 id_game: gameId
             }
         });
+        
+        console.log("Found players:", players.length);
 
         // si es la primera vez de la partida, enviar un array vacio
         if (privateGame.isFirstGame) {
+            console.log("First game, returning empty array");
             privateGame.isFirstGame = false;
             await privateGame.save();
             return [];
         }
 
         const values = players.map((player) => {
-            return {
+            const playerValues = {
                 id_user: player.id_user,
                 x_position: player.x_position,
                 y_position: player.y_position,
                 score: player.score
             };
+            console.log("Player values:", JSON.stringify(playerValues));
+            return playerValues;
         });
 
+        console.log("Returning values:", JSON.stringify(values));
         return values;
     } catch (error) {
+        console.error("Error in getValues:", error);
         throw new Error(`Error obteniendo los valores de la partida privada: ${error.message}`);
     }
 }
-
 /**
  * @description Obtiene todas las partidas privadas pausadas de un usuario
  * @param {Number} userId - Id del usuario
