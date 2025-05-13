@@ -331,6 +331,27 @@ async function getLink(gameId) {
  */
 async function uploadValues(gameId, values) {
     try {
+        console.log("uploadValues called with gameId:", gameId);
+        console.log("Received values:", JSON.stringify(values, null, 2));
+        
+        // Asegurarse de que values es un array
+        let valuesArray = values;
+        
+        // Si values no es un array pero tiene una propiedad 'values' que es un array, usar esa
+        if (!Array.isArray(values) && values && Array.isArray(values.values)) {
+            valuesArray = values.values;
+        } 
+        // Si values es un objeto único, convertirlo en un array
+        else if (!Array.isArray(values) && values) {
+            valuesArray = [values];
+        }
+        
+        // Si después de todo no tenemos un array, creamos uno vacío
+        if (!Array.isArray(valuesArray)) {
+            valuesArray = [];
+            console.log("Warning: values is not in the expected format");
+        }
+
         const privateGame = await Priv.findOne({
             where: {
                 id: gameId
@@ -338,6 +359,7 @@ async function uploadValues(gameId, values) {
         });
 
         if (!privateGame) {
+            console.log("Private game not found with id:", gameId);
             return -1;
         }
 
@@ -348,21 +370,32 @@ async function uploadValues(gameId, values) {
             }
         });
 
+        console.log("Found players:", players.map(p => p.id_user));
+
         await Promise.all(players.map(async (player) => {
-            const playerValues = values.find((value) => value.id_user === player.id_user);
+            // Buscar los valores del jugador, considerando ambas estructuras posibles (id_user o PlayerID)
+            const playerValues = valuesArray.find((value) => 
+                (value.id_user && value.id_user === player.id_user) || 
+                (value.PlayerID && value.PlayerID === player.id_user)
+            );
+            
             if (playerValues) {
-                player.x_position = playerValues.x_position;
-                player.y_position = playerValues.y_position;
-                //player.n_divisions = playerValues.n_divisions;
-                player.score = playerValues.score;
+                console.log("Updating player:", player.id_user);
+                // Actualizar considerando ambas estructuras posibles
+                player.x_position = playerValues.x_position || playerValues.X || 0;
+                player.y_position = playerValues.y_position || playerValues.Y || 0;
+                player.score = playerValues.score || playerValues.Score || 0;
                 await player.save();
+                console.log("Player updated successfully");
+            } else {
+                console.log("No values found for player:", player.id_user);
             }
-        }
-        ));
+        }));
 
         return null;
     } catch (error) {
-        throw new Error(`Error actualizando los valores del usuario`);
+        console.error("Error in uploadValues:", error);
+        throw new Error(`Error actualizando los valores del usuario: ${error.message}`);
     }
 }
 
