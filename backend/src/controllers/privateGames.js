@@ -245,7 +245,7 @@ const getLink = async (req, res) => {
 const uploadValues = async(req, res) => {
     try {
         const { gameId } = req.params;
-        const { values } = JSON.parse(req.body);
+        const { values } = req.body;
 
         if (!gameId) {
             return res.status(500).json({ message: "ID de partida privada no proporcionada" });

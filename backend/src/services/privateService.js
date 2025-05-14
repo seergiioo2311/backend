@@ -372,10 +372,11 @@ async function uploadValues(gameId, values) {
 
         console.log("Found players:", players.map(p => p.id_user));
 
-        await Promise.all(players.forEach(async (player) => {
+        await Promise.all(players.map(async (player) => {  // Cambio de forEach a map
             // Buscar los valores del jugador, considerando ambas estructuras posibles (id_user o PlayerID)
             const playerValues = valuesArray.find((value) => 
-                (value.id_user && value.id_user === player.id_user)
+                (value.id_user && value.id_user === player.id_user) || 
+                (value.PlayerID && value.PlayerID === player.id_user)  // Añadido soporte para PlayerID
             );
             
             if (playerValues) {
