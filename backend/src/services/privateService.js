@@ -165,6 +165,7 @@ async function getPrivateGameWithId(unique_id) {
  */
 async function deletePrivateGame(gameId) {
     try {
+        console.log(`🗑️ Eliminando partida privada con gameId: ${gameId}`);
         const deletedGame = await Priv.destroy({
             where: {
                 id: gameId
@@ -489,9 +490,12 @@ async function getValues(gameId) {
  */
 async function getPrivateGamesUnfinished(userId) {
     try {
+        console.log(`🔍 Buscando partidas privadas no finalizadas para el usuario ${userId}`);
         const status = GAME_STATUS.PAUSED;
+        console.log(`🔹 Estado a buscar: ${status}`);
 
         // Consulta SQL personalizada para obtener las partidas privadas pausadas del usuario
+        console.log(`🔄 Ejecutando consulta SQL para obtener partidas pausadas`);
         const privateGames = await sequelize_game.query(
             `
             SELECT 
@@ -508,11 +512,16 @@ async function getPrivateGamesUnfinished(userId) {
         );
 
         if (!privateGames || privateGames.length === 0) {
+            console.log(`ℹ️ No se encontraron partidas pausadas para el usuario ${userId}`);
             return null;
         }
 
+        console.log(`✅ Se encontraron ${privateGames.length} partidas pausadas para el usuario ${userId}`);
+        console.log(`📊 Primera partida encontrada: ID=${privateGames[0].id}, Nombre=${privateGames[0].name}`);
+        
         return privateGames;
     } catch (error) {
+        console.error(`❌ ERROR al obtener partidas privadas no terminadas: ${error.message}`, error);
         throw new Error(`Error obteniendo partidas privadas no terminadas: ${error.message}`);
     }
 }
@@ -552,6 +561,7 @@ async function getGameWithId(gameCode) {
  */
 async function deleteUserFromPrivateGame(gameId, userId) {
     try {
+        console.log(`🗑️ Eliminando jugador ${userId} de la partida privada ${gameId}`);
         const privateGame = await Priv.findOne({
             where: {
                 id: gameId
@@ -591,6 +601,8 @@ async function deleteUserFromPrivateGame(gameId, userId) {
  */
 async function startPrivateGame(gameId) {
     try {
+        console.log(`🟢 Iniciando partida privada con gameId: ${gameId}`);
+        
         const privateGame = await Priv.findOne({
             where: {
                 id: gameId
@@ -598,8 +610,10 @@ async function startPrivateGame(gameId) {
         });
 
         if (!privateGame) {
+            console.log(`❌ No se encontró la partida privada con ID: ${gameId}`);
             return -1;
         }
+        console.log(`✅ Partida privada encontrada: ${JSON.stringify(privateGame.dataValues)}`);
 
         const game = await Game.findOne({
             where: {
@@ -608,12 +622,15 @@ async function startPrivateGame(gameId) {
         });
 
         if (!game) {
+            console.log(`❌ No se encontró el juego base con ID: ${gameId}`);
             return -1;
         }
+        console.log(`✅ Juego encontrado. Estado actual: ${game.status}`);
 
         game.status = GAME_STATUS.ACTIVE;
-        //game.isFirstGame = false;
+        console.log(`🔄 Cambiando estado del juego a: ${GAME_STATUS.ACTIVE}`);
         await game.save();
+        console.log(`✅ Estado del juego actualizado correctamente`);
 
         // Poner todos los jugadores a "ALIVE"
         const players = await Playing.findAll({
@@ -621,14 +638,19 @@ async function startPrivateGame(gameId) {
                 id_game: gameId
             }
         });
+        console.log(`🔍 Encontrados ${players.length} jugadores en la partida`);
 
         await Promise.all(players.map(async (player) => {
+            console.log(`🔄 Actualizando jugador ${player.id_user} de estado ${player.status} a ${PLAYER_STATUS.ALIVE}`);
             player.status = PLAYER_STATUS.ALIVE;
             await player.save();
+            console.log(`✅ Jugador ${player.id_user} actualizado correctamente`);
         }));
 
+        console.log(`🎮 Partida privada ${gameId} iniciada con éxito`);
         return null;
     } catch (error) {
+        console.error(`❌ ERROR iniciando partida privada: ${error.message}`, error);
         throw new Error(`Error iniciando partida privada: ${error.message}`);
     }
 }
@@ -641,6 +663,8 @@ async function startPrivateGame(gameId) {
  */
 async function pausePrivateGame(gameId) {
     try {
+        console.log(`⏸️ Pausando partida privada con gameId: ${gameId}`);
+        
         const privateGame = await Priv.findOne({
             where: {
                 id: gameId
@@ -648,8 +672,10 @@ async function pausePrivateGame(gameId) {
         });
 
         if (!privateGame) {
+            console.log(`❌ No se encontró la partida privada con ID: ${gameId}`);
             return -1;
         }
+        console.log(`✅ Partida privada encontrada: ${JSON.stringify(privateGame.dataValues)}`);
 
         const game = await Game.findOne({
             where: {
@@ -658,11 +684,15 @@ async function pausePrivateGame(gameId) {
         });
 
         if (!game) {
+            console.log(`❌ No se encontró el juego base con ID: ${gameId}`);
             return -1;
         }
+        console.log(`✅ Juego encontrado. Estado actual: ${game.status}`);
 
         game.status = GAME_STATUS.PAUSED;
+        console.log(`🔄 Cambiando estado del juego a: ${GAME_STATUS.PAUSED}`);
         await game.save();
+        console.log(`✅ Estado del juego actualizado correctamente`);
 
         // Poner todos los jugadores a "WAITING"
         const players = await Playing.findAll({
@@ -670,14 +700,19 @@ async function pausePrivateGame(gameId) {
                 id_game: gameId
             }
         });
+        console.log(`🔍 Encontrados ${players.length} jugadores en la partida`);
 
         await Promise.all(players.map(async (player) => {
+            console.log(`🔄 Actualizando jugador ${player.id_user} de estado ${player.status} a ${PLAYER_STATUS.WAITING}`);
             player.status = PLAYER_STATUS.WAITING;
             await player.save();
+            console.log(`✅ Jugador ${player.id_user} actualizado correctamente`);
         }));
 
+        console.log(`⏸️ Partida privada ${gameId} pausada con éxito`);
         return null;
     } catch (error) {
+        console.error(`❌ ERROR pausando partida privada: ${error.message}`, error);
         throw new Error(`Error pausando partida privada: ${error.message}`);
     }
 }
