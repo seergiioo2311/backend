@@ -306,7 +306,7 @@ async function getLink(gameId) {
             where: {
                 id_game: gameId,
                 status: {
-                    [Op.eq]: PLAYER_STATUS.READY
+                    [Op.or]: [PLAYER_STATUS.READY, PLAYER_STATUS.ALIVE]
                 }
             }
         });
