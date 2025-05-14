@@ -310,10 +310,16 @@ async function getLink(gameId) {
                 }
             }
         });
+        
+        const current = await Playing.count({
+            where: {
+                id_game: gameId,
+            }
+        });
 
-        console.log("res:", res, "currentPlayers:", privateGame.currentPlayers);
+        console.log("res:", res, "currentPlayers:", privateGame.currentPlayers, "current:", current);
 
-        if (res < privateGame.currentPlayers) {
+        if (res < current) {
             throw new Error('No se puede obtener el link, hay jugadores pendientes de dar listo');
         }
 
