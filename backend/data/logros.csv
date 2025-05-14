@@ -8,8 +8,8 @@ Juega 20 horas,timePlayed,200,72000
 Juega 30 horas,timePlayed,300,108000
 Juega 40 horas,timePlayed,400,144000
 Juega 50 horas,timePlayed,500,180000
-Alcanza 250 puntos,maxScore,100,250
-Alcanza 500 puntos,maxScore,200,500
-Alcanza 1000 puntos,maxScore,300,1000
-Alcanza 2000 puntos,maxScore,400,2000
-Alcanza 3000 puntos,maxScore,500,3000
+Alcanza 100 puntos,maxScore,100,100
+Alcanza 200 puntos,maxScore,200,200
+Alcanza 300 puntos,maxScore,300,300
+Alcanza 400 puntos,maxScore,400,400
+Alcanza 500 puntos,maxScore,500,500
