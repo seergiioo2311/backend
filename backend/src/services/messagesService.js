@@ -62,6 +62,7 @@ async function getMessages(userIdEmisor, userIdReceptor) {
  */
 async function addMessage(id, userIdEmisor, userIdReceptor, messageContent, date) {
   try {
+    console.log("GuardandoMensaje")
     // Crear un nuevo mensaje entre los dos usuarios en la tabla Chat
     const newMessage = await Message.create({
       id: id,
@@ -75,6 +76,7 @@ async function addMessage(id, userIdEmisor, userIdReceptor, messageContent, date
 
     return { message: "Mensaje enviado correctamente.", data: newMessage };
   } catch (error) {
+    console.log("❌ Error al enviar el mensaje:", error);  // Mensaje de error detallado
     return { message: error.message };
   }
 }
@@ -129,5 +131,32 @@ async function checkUser(userId) {
   }
 }
 
+/**
+ * @description Obtiene el último mensaje entre dos usuarios 
+ * @param {uuid} userIdEmisor - El id del usuario emisor
+ * @param {uuid} userIdReceptor - El id del usuario receptor
+ * @returns {Json} - Un objeto con el último mensaje
+ * @throws {Error} - Si no se encuentra o ocurre algún error
+ */
+async function get_last_message(userIdEmisor, userIdReceptor) {
+  try {
+    console.log("🔍 Buscando el último mensaje entre los usuarios con ID:", userIdEmisor, userIdReceptor);  // Mensaje de depuración
+    const lastMessage = await Message.findOne({
+      where: {
+        [Op.or]: [
+          { id_friend_emisor: userIdEmisor, id_friend_receptor: userIdReceptor },
+          { id_friend_emisor: userIdReceptor, id_friend_receptor: userIdEmisor }
+        ]
+      },
+      order: [['date', 'DESC']]
+    });
 
-module.exports = { getMessages, addMessage, hasNotViewedMessages, checkUser,  };
+    return lastMessage;
+  } catch (error) {
+    console.error("❌ Error al obtener el último mensaje:", error);
+    return null;
+  }
+}
+
+
+module.exports = { getMessages, addMessage, hasNotViewedMessages, checkUser,  get_last_message};

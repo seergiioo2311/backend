@@ -20,7 +20,7 @@ const Game = sequelize_game.define (
         status: {
             type: DataTypes.ENUM(...Object.values(GAME_STATUS)),
             allowNull: false
-        }
+        },
     }, 
     {
         timestamps: true

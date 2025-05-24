@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken");
 
-const rutasPublicas = ["/auth/sign-in", "/auth/sign-up", "/auth/forgot-password", "/auth/reset-password", "/auth/refresh-token", "/achievements/update-achievement", "/contact-support/new" ]
+const rutasPublicas = ["/auth/sign-in", "/auth/sign-up", "/auth/forgot-password", "/auth/reset-password", 
+    "/auth/refresh-token", "/achievements/update-achievement", "/contact-support/new",
+    "/private/startPrivateGame", "/private/pausePrivateGame", "/private/uploadValues",
+    "/private/getValues" ]
 
 /**
  * @description Middleware para verificar si el usuario está autenticado 
@@ -12,7 +15,7 @@ const rutasPublicas = ["/auth/sign-in", "/auth/sign-up", "/auth/forgot-password"
  */ 
 const authMiddleware = (req, res, next) => {
     // Permitir rutas públicas sin autenticación
-    const currentPath = req.path; // O usa req.originalUrl si tienes prefijos
+    const currentPath = req.path.split('/').slice(0, 3).join('/'); // Obtiene la parte base de la ruta
     if (rutasPublicas.some((ruta) => currentPath.startsWith(ruta))) {
         return next();
     }

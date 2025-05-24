@@ -2,7 +2,7 @@ const Loggin = require('../models/Loggin.js'); //Importamos el modelo user
 const bcrypt = require('bcrypt'); //Importamos bcryptjs para encriptar las contraseña aumentando la seguridad
 const jwt = require('jsonwebtoken'); //Importamos jsonwebtoken para generar el token y poder usar OAuth
 const crypto = require('crypto'); //Importamos crypto para generar el token de recuperacion de contraseña
-const transporter = require('../config/email.js'); //Importamos el transporter del correo electronico
+//const transporter = require('../config/email.js'); //Importamos el transporter del correo electronico
 const path = require("path"); //Importamos path para poder acceder a la ruta de la imagen del logo
 const { Op } = require('sequelize');
 const User = require('../models/User.js');
@@ -12,6 +12,11 @@ const UserItem = require('../models/User_item');
 const { Achievement, Achievement_type } = require('../models/Achievement.js');
 const UserLevel = require('../models/User_level.js');
 const User_item = require('../models/User_item.js');
+const sgMail = require('@sendgrid/mail');
+const fs = require('fs');
+
+// Configura tu API key de SendGrid
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 /**
  * 
@@ -22,64 +27,70 @@ const User_item = require('../models/User_item.js');
  * @throws {Error} - Lanza un error si hay un problema al enviar el correo electronico
  */
 async function sendMail(email, token) {
-    const resetLink = `http://localhost:4321/changePassword?token=${token}`; //Creamos el link de recuperacion de contraseña
+    const resetLink = `http://galaxy.t2dc.es:4321/changePassword?token=${token}`;
+    
     try {
-        const info = await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: 'Recuperación de Contraseña',
-        html: `
+        // Lee el archivo del logo y conviértelo a Base64
+        const logoPath = path.join(__dirname, '../assets/logo.png');
+        const logoContent = fs.readFileSync(logoPath).toString('base64');
+
+        const msg = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Recuperación de Contraseña',
+            html: `
                 <html lang="es">
                 <head>
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>Recuperación de Contraseña</title>
                 </head>
-                <body style="font-family: Arial, sans-serif; background-color: #1a1a2e; margin: 0; padding: 0; 
-                            background-image: url('https://source.unsplash.com/600x400/?galaxy,stars'); 
-                            background-size: cover; background-position: center;">
-
-                    <div style="max-width: 600px; margin: 30px auto; background: rgba(40, 40, 80, 0.9); padding: 20px; 
-                                border-radius: 8px; box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3); text-align: center; 
+                <body style="font-family: Arial, sans-serif; background-color: #1a1a2e; margin: 0; padding: 0;
+                             background-image: url('https://source.unsplash.com/600x400/?galaxy,stars');
+                             background-size: cover; background-position: center;">
+                    <div style="max-width: 600px; margin: 30px auto; background: rgba(40, 40, 80, 0.9); padding: 20px;
+                                border-radius: 8px; box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3); text-align: center;
                                 color: #ddd;">
-
                         <!-- Logo -->
                         <img src="cid:logo" alt="Logo" style="max-width: 150px; margin-bottom: 20px; filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 0.8));">
-
+                        
                         <h1 style="color: #b19cd9; font-size: 24px;">¿Olvidaste tu contraseña?</h1>
                         <p style="color: #c0c0ff; font-size: 16px;">
                             No te preocupes, haz clic en el botón de abajo para restablecer tu contraseña.
                         </p>
-
-                        <!-- Botón con efecto hover usando onmouseover y onmouseout -->
+                        
+                        <!-- Botón con efecto hover -->
                         <a href="${resetLink}" 
-                        style="display: inline-block; padding: 12px 20px; margin-top: 20px; background-color: #6a5acd; 
-                                color: #ffffff !important; text-decoration: none; font-size: 18px; border-radius: 5px; 
-                                transition: background 0.3s ease-in-out;"
-                        onmouseover="this.style.backgroundColor='#5a4fcf'" 
-                        onmouseout="this.style.backgroundColor='#6a5acd'">
+                        style="display: inline-block; padding: 12px 20px; margin-top: 20px; background-color: #6a5acd;
+                                color: #ffffff !important; text-decoration: none; font-size: 18px; border-radius: 5px;
+                                transition: background 0.3s ease-in-out;">
                         Restablecer contraseña
                         </a>
-
+                        
                         <p style="margin-top: 20px; font-size: 14px; color: #b0a7e6;">
                             Si no solicitaste este cambio, puedes ignorar este mensaje.
                         </p>
                     </div>
-
                 </body>
                 </html>
-                `,
-        attachments: [
-            {
-                filename: 'logo.png',
-                path: path.join(__dirname, '../assets/logo.png'),
-                cid: 'logo',
-            }
-        ]
-        });
+            `,
+            attachments: [
+                {
+                    filename: 'logo.png',
+                    content: logoContent, // Contenido en Base64
+                    cid: 'logo', // CID para incrustar la imagen en el correo
+                }
+            ]
+        };
+        
+        const info = await sgMail.send(msg);
         return info;
     } catch (error) {
-        console.error(error);
+        console.error('Error al enviar el correo:', error);
+        if (error.response) {
+            console.error(error.response.body);
+        }
+        throw error; // Propagar el error para manejarlo en la función que llama a sendMail
     }
 }
 
@@ -159,6 +170,9 @@ const sign_in = async (req, res) => {
         }
 
         const user = await User.findOne({ where: { username: loggin.username } });
+
+        user.lastConnection = new Date(); // Actualiza la última conexión del usuario
+        await user.save(); // Guarda los cambios en la base de datos
 
         if (!user) {
             return res.status(401).json({ message: 'Usuario o contraseña incorrectos' });
@@ -340,7 +354,7 @@ const refresh_token = async (req, res) => {
       if (err) return res.status(403).json({ message: "Refresh token inválido" });
 
       // Buscar al usuario en la base de datos
-      const user = await Loggin.findOne({ where: { id: decoded.id } });
+      const user = await Loggin.findOne({ where: { email: decoded.email } });
 
       if (!user || user.refreshToken !== refreshToken) {
         return res.status(403).json({ message: "Refresh token no válido o caducado" });

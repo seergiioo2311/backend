@@ -86,5 +86,22 @@ const has_not_viewed_messages = async (req, res) => {
   }
 }
 
+/**
+ * @description Obtiene el último mensaje entre dos usuarios 
+ * @param {Request} req - Request de Express
+ * @param {Response} res - Response de Express 
+ * @returns {Response} - Devuelve el último mensaje entre dos usuarios 
+ * @throws {Error} - Maneja errores internos del servidor
+ */ 
+const get_last_message= async (req, res) => {
+  try {
+    const { idEmisor, idReceptor } = req.params;
+    const lastMessage = await messagesService.get_last_message(idEmisor, idReceptor);
+    res.status(200).json(lastMessage);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
-module.exports = { get_messages, add_message, has_not_viewed_messages };
+
+module.exports = { get_messages, add_message, has_not_viewed_messages, get_last_message};

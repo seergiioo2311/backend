@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const { sequelize_loggin, connectDB, sequelize_game } = require("../config/db.js");
 
 const ACHIEVEMENT_TYPE = {
-    HOURSPLAYED: "hoursPlayed",
+    TIMEPLAYED: "timePlayed", // Time played in seconds
     ELIMINATEDPLAYERS: "playersEliminated",
     MAXSCORE: "maxScore",
 };
